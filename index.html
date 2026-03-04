@@ -3,147 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STREET CODING FIGHTER v13.0</title>
+<title>STREET CODING FIGHTER v14.0</title>
 <style>
     body { margin: 0; background: #000; overflow: hidden; touch-action: none; }
     canvas { display: block; margin: auto; }
-    /* 시작 화면 오버레이 */
     #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
+        background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
         align-items: center; justify-content: center; z-index: 100;
         color: #ffcc33; font-family: 'Courier New', monospace;
     }
     #start-btn {
-        padding: 20px 50px; font-size: 2rem; background: #ff4444;
-        color: white; border: none; border-radius: 10px; cursor: pointer;
-        box-shadow: 0 0 20px #ff4444; margin-top: 20px;
+        padding: 20px 60px; font-size: 2rem; background: #ff4444;
+        color: white; border: none; border-radius: 50px; cursor: pointer;
+        box-shadow: 0 0 30px #ff4444; margin-top: 30px;
     }
-    #input {
-        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-        padding: 15px; font-size: 1.5rem; background: rgba(0,0,0,0.7);
-        color: #39ff14; border: 3px solid #39ff14; width: 80%; text-align: center;
+    #controls {
+        position: fixed; bottom: 30px; width: 100%; display: flex;
+        justify-content: space-around; pointer-events: none;
+    }
+    .btn {
+        width: 80px; height: 80px; background: rgba(255,255,255,0.2);
+        border: 3px solid #fff; border-radius: 50%; color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold; pointer-events: auto; font-size: 1.2rem;
     }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="text-shadow: 0 0 20px red;">STREET CODING FIGHTER</h1>
-    <p>모네의 노을 아래서 벌어지는 코드 배틀</p>
-    <button id="start-btn">START GAME</button>
+    <h1 style="font-size: 3rem; text-shadow: 0 0 20px red;">STREET CODING</h1>
+    <p>막대그래프가 아닌 진짜 격투가 시작됩니다</p>
+    <button id="start-btn">FIGHT!</button>
 </div>
 
 <canvas id="game"></canvas>
-<input id="input" placeholder="명령어: h (장풍), a (공격)" autocomplete="off">
+
+<div id="controls">
+    <div class="btn" id="btn-left">◀</div>
+    <div class="btn" id="btn-atk">ATK</div>
+    <div class="btn" id="btn-right">▶</div>
+</div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const input = document.getElementById("input");
-const overlay = document.getElementById("overlay");
+const startBtn = document.getElementById("start-btn");
 
-// 캔버스 크기 조절 (모바일 대응)
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 window.addEventListener('resize', resize);
 resize();
+
+// 튜토리얼 2, 3편의 애니메이션 데이터 구조 응용
+const anims = {
+    p1: { idle: "🧑‍💻", attack: "👊", hit: "🤕" },
+    p2: { idle: "👾", attack: "💥", hit: "😵" }
+};
 
 const sounds = {
     hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
     bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
 };
-sounds.bgm.loop = true;
-
-const GRAVITY = 0.8;
-const GROUND_Y = canvas.height * 0.85;
 
 class Fighter {
-    constructor(x, color, name, isPlayer) {
-        this.x = x; this.y = GROUND_Y;
-        this.vx = 0; this.vy = 0;
-        this.color = color; this.name = name;
-        this.hp = 100; this.state = "idle";
-        this.facing = isPlayer ? 1 : -1;
-        this.width = 60; this.height = 140;
+    constructor(x, side, config) {
+        this.x = x; this.y = canvas.height * 0.8;
+        this.vx = 0; this.hp = 100;
+        this.state = "idle";
+        this.side = side; // 1: 왼쪽, -1: 오른쪽
+        this.config = config;
     }
 
-    // SF2 튜토리얼 5편의 충돌 판정 계승
-    getHurtBoxes() { return [{ x: this.x - 30, y: this.y - 140, w: 60, h: 140 }]; }
-    getHitBox() { 
+    // 튜토리얼 5편의 충돌 판정
+    getHurtBox() { return { x: this.x - 40, y: this.y - 150, w: 80, h: 150 }; }
+    getHitBox() {
         if (this.state !== "attack") return null;
-        return { x: this.x + (this.facing * 40), y: this.y - 110, w: 50, h: 40 }; 
+        return { x: this.x + (this.side * 50), y: this.y - 120, w: 60, h: 50 };
     }
 
-    update() {
+    update(opponent) {
         if (this.hp <= 0) return;
-        this.vy += GRAVITY;
-        this.y += this.vy;
-        if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
+        this.x += this.vx;
+
+        // 경계 제한
+        this.x = Math.max(50, Math.min(canvas.width - 50, this.x));
+
+        // 공격 판정 로직
+        const hit = this.getHitBox();
+        const target = opponent.getHurtBox();
+        if (hit && hit.x < target.x + target.w && hit.x + hit.w > target.x && opponent.state !== "hit") {
+            opponent.hp -= 10;
+            opponent.state = "hit";
+            sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
+            setTimeout(() => opponent.state = "idle", 400);
+        }
     }
 
     draw() {
         ctx.save();
-        ctx.fillStyle = this.state === "hit" ? "white" : this.color;
-        ctx.fillRect(this.x - this.width/2, this.y - this.height, this.width, this.height);
+        // 캐릭터 드로잉 (막대그래프 대신 텍스트/이모지 파이터)
+        ctx.font = "120px Arial";
+        ctx.textAlign = "center";
         
-        // HP 바 (캐릭터 머리 위)
-        ctx.fillStyle = "#ff4444";
-        ctx.fillRect(this.x - 30, this.y - 160, 60, 5);
-        ctx.fillStyle = "#39ff14";
-        ctx.fillRect(this.x - 30, this.y - 160, (this.hp/100) * 60, 5);
+        // 그림자 효과
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        
+        const currentImg = anims[this.config][this.state];
+        ctx.fillText(currentImg, this.x, this.y);
+
+        // HP 바 (이름표 포함)
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(this.x - 50, this.y - 180, 100, 10);
+        ctx.fillStyle = this.hp > 30 ? "#39ff14" : "#ff4444";
+        ctx.fillRect(this.x - 50, this.y - 180, this.hp, 10);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(canvas.width * 0.2, "cyan", "KEN", true);
-const p2 = new Fighter(canvas.width * 0.8, "magenta", "CHUN-LI", false);
+const p1 = new Fighter(canvas.width * 0.25, 1, "p1");
+const p2 = new Fighter(canvas.width * 0.75, -1, "p2");
 
 function loop() {
-    // 모네의 노을 배경
+    // 모네의 '노을' 배경
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, "#1a1a2e"); grad.addColorStop(0.6, "#000"); grad.addColorStop(1, "#6a5acd");
+    grad.addColorStop(0, "#1a1a2e"); grad.addColorStop(0.5, "#000"); grad.addColorStop(1, "#6a5acd");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    p1.update(); p2.update();
+    p1.update(p2); p2.update(p1);
     p1.draw(); p2.draw();
 
-    // 충돌 체크 로직 (간소화)
-    const hit = p1.getHitBox();
-    const target = p2.getHurtBoxes()[0];
-    if (hit && hit.x < target.x + target.w && hit.x + hit.w > target.x && p2.state !== "hit") {
-        p2.hp -= 10; p2.state = "hit";
-        sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
-        setTimeout(() => p2.state = "idle", 300);
+    if (p1.hp <= 0 || p2.hp <= 0) {
+        ctx.fillStyle = "white"; ctx.font = "50px Arial";
+        ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2);
+    } else {
+        requestAnimationFrame(loop);
     }
-
-    requestAnimationFrame(loop);
 }
 
-// 모바일 시동 장치 [핵심 수정 사항]
+// 모바일 컨트롤 및 시동
 function startGame() {
-    overlay.style.display = "none";
-    sounds.bgm.play().catch(() => console.log("Audio Blocked"));
+    document.getElementById("overlay").style.display = "none";
+    sounds.bgm.loop = true;
+    sounds.bgm.play().catch(()=>{});
     loop();
 }
 
-document.getElementById("start-btn").addEventListener("click", startGame);
-document.getElementById("start-btn").addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    startGame();
-});
+startBtn.addEventListener("click", startGame);
+startBtn.addEventListener("touchstart", startGame);
 
-input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-        const cmd = input.value.trim().toLowerCase();
-        input.value = "";
-        if (cmd === 'a') { p1.state = "attack"; setTimeout(() => p1.state = "idle", 200); }
-        if (cmd === 'h') { p1.vy = -15; } // 점프 테스트
+// 터치 버튼 로직
+document.getElementById("btn-left").onpointerdown = () => p1.vx = -5;
+document.getElementById("btn-left").onpointerup = () => p1.vx = 0;
+document.getElementById("btn-right").onpointerdown = () => p1.vx = 5;
+document.getElementById("btn-right").onpointerup = () => p1.vx = 0;
+document.getElementById("btn-atk").onpointerdown = () => {
+    if (p1.state === "idle") {
+        p1.state = "attack";
+        setTimeout(() => p1.state = "idle", 300);
     }
-});
+};
 </script>
 </body>
 </html>

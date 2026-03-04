@@ -1,0 +1,35 @@
+// 간단한 게임 엔진 로직
+const codeInput = document.getElementById('code-input');
+const stage = document.getElementById('stage');
+const status = document.getElementById('status');
+
+// 기술 목록 (콤보 리스트)
+const skillBook = {
+  "attack()": { name: "기본 펀치", damage: 10, effect: "👊" },
+  "special_move()": { name: "초필살기", damage: 50, effect: "🔥" },
+  "defend()": { name: "방어", damage: 0, effect: "🛡️" }
+};
+
+// 입력 감지 이벤트
+codeInput.addEventListener('input', (e) => {
+  const currentCode = e.target.value;
+
+  if (skillBook[currentCode]) {
+    // 기술 발동!
+    executeSkill(skillBook[currentCode]);
+    
+    // 입력창 초기화 (공격 성공 후 다음 입력을 위해)
+    e.target.value = '';
+  }
+});
+
+function executeSkill(skill) {
+  status.innerText = `${skill.name} 발동! 데미지: ${skill.damage}`;
+  stage.innerText = skill.effect; // 화면에 이펙트 표시
+  
+  // 1초 뒤 원래대로
+  setTimeout(() => {
+    stage.innerText = "🧍";
+    status.innerText = "코드를 입력하세요...";
+  }, 1000);
+}

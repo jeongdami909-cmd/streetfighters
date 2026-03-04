@@ -3,16 +3,17 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Nexus Strike: Sprite Awakening</title>
+    <title>Nexus Strike: True Visuals</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet"/>
     <script>
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#00f2ff", "accent-pink": "#ff00ea", "background-dark": "#050505" } } } }
     </script>
     <style>
-        body { background: #050505; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; -webkit-user-select: none; }
+        /* 🛠️ 최종 해결: touch-action 수정 */
+        body { background: #050505; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
         canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; image-rendering: pixelated; object-fit:contain; }
+        button { touch-action: manipulation; } /* */
         .interactive { pointer-events: auto; z-index: 50; position: relative; }
         .glitch { text-shadow: 2px 0 #ff00ea, -2px 0 #00f2ff; }
     </style>
@@ -22,46 +23,42 @@
     <div id="vs-screen" class="interactive fixed inset-0 z-[100] bg-background-dark flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="flex gap-10 items-center">
             <div class="text-center">
-                <div class="size-60 border-2 border-primary rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1');"></div>
-                <h1 class="text-5xl font-black italic mt-4 text-primary glitch italic">KAI</h1>
+                <div class="size-60 border-2 border-primary rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1');"></div>
+                <h1 class="text-5xl font-black italic mt-4 text-primary glitch">KAI</h1>
             </div>
-            <div class="text-8xl font-black italic text-white italic">VS</div>
+            <div class="text-8xl font-black italic text-white">VS</div>
             <div class="text-center">
-                <div class="size-60 border-2 border-red-500 rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq');"></div>
-                <h1 class="text-5xl font-black italic mt-4 text-red-500 italic">BRUNO</h1>
+                <div class="size-60 border-2 border-red-500 rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq');"></div>
+                <h1 class="text-5xl font-black italic mt-4 text-red-500">BRUNO</h1>
             </div>
         </div>
-        <button id="start-btn" class="mt-12 px-16 py-6 bg-primary text-black font-black text-2xl rounded-lg shadow-[0_0_50px_rgba(0,242,255,0.5)] active:scale-95 transition">SYSTEM ENGAGE</button>
+        <button id="start-btn" class="mt-12 px-16 py-6 bg-primary text-black font-black text-2xl rounded-lg shadow-[0_0_50px_rgba(0,242,255,0.5)] active:scale-95 transition">SYSTEM BOOT UP</button>
     </div>
 
-    <div id="hud" class="hidden fixed top-0 inset-x-0 z-50 p-6 flex justify-between items-start pointer-events-none">
-        <div class="w-[40%] flex items-center gap-4">
-            <div class="size-16 border-2 border-primary bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBV2EGrt7dffIdMuyKwKH9RvzV3ifY-GDzWxbZD4-MddcDKa0DzK_5O4_d797Mik3DHE1Pwq-j-pLhGzdFyykkQXH9eXwIyKncvAOXbLBqeJ7HiGwbLKCJ93TKXVT-2vg2hgF9efi2gCCEOvdtL8amHz9EwAZeE5j-8vhGMqsCOnVeECf0aE-x98BOPBr96-5Hzte1aOw9weH5aUfqTgULGBSGKvS2oxY2yCGg53X9GC1kbqHn3ssT8YjyiyGV9TvEXEXrTBFjioJjI')"></div></div>
-            <div class="flex-1">
+    <div id="ui-layer">
+        <div id="hud" class="hidden absolute top-0 inset-x-0 p-6 flex justify-between items-start">
+            <div class="w-[40%]">
                 <div class="flex justify-between font-black italic mb-1 text-primary"><span>KAI</span><span id="p1-hp-txt">100%</span></div>
-                <div class="h-5 bg-black/40 border border-white/20"><div id="p1-hp-bar" class="h-full bg-primary" style="width: 100%"></div></div>
+                <div class="h-4 bg-black/40 border border-white/20"><div id="p1-hp-bar" class="h-full bg-primary transition-all" style="width: 100%"></div></div>
             </div>
-        </div>
-        <div class="bg-black/80 border-x-4 border-primary px-8 py-2 rounded-b-xl"><h2 id="timer" class="text-primary text-5xl font-black italic">99</h2></div>
-        <div class="w-[40%] flex flex-row-reverse items-center gap-4">
-            <div class="size-16 border-2 border-red-500 bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFqpjO4PrXf8GyC91uLsbkpKd_0oOew4RBmXt5IQtSh4N-_u-HUXM7myAQhzPgW6-uC86w5ulWBtvyDTJLuqFeQzDmyR9ipxBtlHi8a-3ERAmlO2duiXJvfAor9ZDEgDstVCh42Gb5CcnaQICXkyRrhA3AtfrcIganLfnMaWLzc6bF7q2ANV0LACD-0gaIRCev-WoKaLESo_P93TfUfhOH_0WJ_EprZfoldd3w4-W5oV_bOLkdKhVceU6Y_C8UoB5X77r_e6LdwiU')"></div></div>
-            <div class="flex-1 text-right">
+            <div class="bg-black/80 border-x-4 border-primary px-6 py-1 text-4xl font-black italic text-primary italic">99</div>
+            <div class="w-[40%] text-right">
                 <div class="flex justify-between flex-row-reverse font-black italic mb-1 text-red-500"><span>BRUNO</span><span id="p2-hp-txt">100%</span></div>
-                <div class="h-5 bg-black/40 border border-white/20 flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-red-500" style="width: 100%"></div></div>
+                <div class="h-4 bg-black/40 border border-white/20 flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-red-500 transition-all" style="width: 100%"></div></div>
             </div>
         </div>
-    </div>
 
-    <div id="controls" class="hidden absolute bottom-12 inset-x-0 z-50 px-10 flex justify-between items-end pointer-events-none">
-        <div class="grid grid-cols-3 gap-3 interactive">
-            <div></div><button id="up" class="size-16 bg-white/10 rounded-xl border-t-2 border-white/20 text-white">▲</button><div></div>
-            <button id="left" class="size-16 bg-white/10 rounded-xl border-l-2 border-white/20 text-white">◀</button>
-            <button id="down" class="size-16 bg-white/10 rounded-xl border-b-2 border-white/20 text-white">▼</button>
-            <button id="right" class="size-16 bg-white/10 rounded-xl border-r-2 border-white/20 text-white">▶</button>
-        </div>
-        <div class="flex gap-6 interactive">
-            <button id="btn-p" class="size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black text-2xl italic">P</button>
-            <button id="btn-k" class="size-20 rounded-full border-4 border-accent-pink bg-black/60 text-accent-pink font-black text-2xl italic">K</button>
+        <div id="controls" class="hidden absolute bottom-12 inset-x-0 px-10 flex justify-between items-end">
+            <div class="grid grid-cols-3 gap-3 interactive">
+                <div></div><button id="up" class="size-16 bg-white/10 rounded-xl border border-white/20 text-white">▲</button><div></div>
+                <button id="left" class="size-16 bg-white/10 rounded-xl border border-white/20 text-white">◀</button>
+                <button id="down" class="size-16 bg-white/10 rounded-xl border border-white/20 text-white">▼</button>
+                <button id="right" class="size-16 bg-white/10 rounded-xl border border-white/20 text-white">▶</button>
+            </div>
+            <div class="flex gap-6 interactive">
+                <button id="btn-p" class="size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black text-2xl italic">P</button>
+                <button id="btn-k" class="size-20 rounded-full border-4 border-accent-pink bg-black/60 text-accent-pink font-black text-2xl italic">K</button>
+            </div>
         </div>
     </div>
 
@@ -75,34 +72,40 @@
         const heldKeys = new Set();
         let hitstop = 0; let shake = 0;
 
-        // 🛠️ 스프라이트 자산 매핑
+        // 🛠️ 진짜 이미지 객체 생성
         const SPRITES = {
             bg: new Image(),
-            p1: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
-            p2: new Image()
+            p1: new Image(), // KAI
+            p2: new Image()  // BRUNO
         };
         SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A";
-        SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
+        SPRITES.p1.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1"; // VS 화면의 KAI 이미지
+        SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq"; // 브루노 이미지
 
         class Fighter {
-            constructor(x, id, isPlayer) {
-                this.x = x; this.y = GROUND_Y; this.vx = 0; this.vy = 0;
-                this.hp = 100; this.id = id; this.state = "idle";
-                this.frame = 0; this.timer = 0;
-                this.facing = isPlayer ? 1 : -1; this.isPlayer = isPlayer;
+            constructor(x, id, img, isPlayer) {
+                this.x = x; this.y = GROUND_Y;
+                this.vx = 0; this.vy = 0;
+                this.hp = 100; this.id = id; this.img = img;
+                this.state = "idle"; // idle, walk, jump, punch, kick, hit
+                this.facing = isPlayer ? 1 : -1;
+                this.isPlayer = isPlayer;
                 this.isHit = false;
+                this.timer = 0;
             }
 
             takeDamage(amt, attacker) {
-                this.hp = Math.max(0, this.hp - amt); this.state = "hit";
-                this.vx = attacker.facing * 6; // 넉백
-                hitstop = 6; shake = 12; // 타격 연출
-                updateHUD();
+                this.hp = Math.max(0, this.hp - amt);
+                this.state = "hit";
+                this.vx = attacker.facing * 7; // 넉백 물리 강화
+                hitstop = 5; shake = 10; // 타격감 연출
+                document.getElementById(this.isPlayer ? "p1-hp-bar" : "p2-hp-bar").style.width = this.hp + "%";
+                document.getElementById(this.isPlayer ? "p1-hp-txt" : "p2-hp-txt").innerText = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; else this.state = "down"; }, 300);
             }
 
             update(opponent) {
-                if (this.state === "down") return;
+                if (this.state === "down") { this.vx = 0; return; }
 
                 if (this.isPlayer) {
                     if (!["punch", "kick", "hit"].includes(this.state)) {
@@ -113,10 +116,12 @@
                         if (heldKeys.has("Up") && this.y >= GROUND_Y) this.vy = -12;
                     }
                 } else {
-                    // AI 추격 및 공격
+                    // AI 지능형 추격
                     const dist = Math.abs(this.x - opponent.x);
-                    if (dist > 65) { this.vx = this.x < opponent.x ? 2 : -2; this.state = "walk"; }
-                    else { this.vx = 0; if(Math.random() < 0.04) this.doAction(Math.random() > 0.5 ? "punch" : "kick", opponent); else this.state = "idle"; }
+                    if (this.state === "idle" || this.state === "walk") {
+                        if (dist > 60) { this.vx = this.x < opponent.x ? 2 : -2; this.state = "walk"; }
+                        else { this.vx = 0; if(Math.random() < 0.05) this.attack(opponent); else this.state = "idle"; }
+                    }
                 }
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
@@ -124,43 +129,37 @@
                 this.x = Math.max(25, Math.min(359, this.x));
                 this.facing = this.x < opponent.x ? 1 : -1;
 
-                if (Date.now() - this.timer > 100) {
-                    this.frame = (this.frame + 1) % (this.state === "walk" ? 2 : 1);
-                    this.timer = Date.now();
-                    if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
-                }
+                if (this.state === "hit" && Date.now() - this.timer > 250) this.state = "idle";
             }
 
-            doAction(type, target) {
-                if (this.state !== "idle" && this.state !== "walk") return;
-                this.state = type; this.frame = 0;
+            attack(target) {
+                if (["punch", "kick"].includes(this.state)) return;
+                this.state = "punch"; this.timer = Date.now();
                 if (Math.abs(this.x - target.x) < 55) target.takeDamage(10, this);
+                setTimeout(() => { if(this.state === "punch") this.state = "idle"; }, 300);
             }
 
             draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.scale(this.facing, 1);
                 
-                // 🛠️ 진짜 스프라이트 그리기! (네모 박스 탈출)
-                let img;
-                if (this.isPlayer) {
-                    const idx = this.state === "punch" ? 5 : (this.state === "kick" ? 7 : (this.state === "walk" ? this.frame+1 : 0));
-                    img = SPRITES.p1[idx];
-                } else { img = SPRITES.p2; }
-                
+                // 🛠️ 진짜 이미지 드로잉 (네모 탈출!)
                 if (this.isHit) { ctx.filter = "brightness(3)"; ctx.translate(Math.random()*4-2, 0); }
-                ctx.drawImage(img, -32, -64, 64, 64);
+                
+                // 캐릭터 이미지 출력 (64x64 사이즈 최적화)
+                ctx.drawImage(this.img, -32, -64, 64, 64);
+                
+                // 공격 시 시각적 보정 (그림만 있을 때의 단조로움 해결)
+                if (this.state === "punch") {
+                    ctx.fillStyle = this.isPlayer ? "#00f2ff55" : "#ff444455";
+                    ctx.fillRect(15, -45, 30, 10);
+                }
                 ctx.restore();
             }
         }
 
         let p1, p2, active = false;
-
-        function updateHUD() {
-            document.getElementById("p1-hp-bar").style.width = p1.hp + "%";
-            document.getElementById("p2-hp-bar").style.width = p2.hp + "%";
-            document.getElementById("p1-hp-txt").innerText = p1.hp + "%";
-            document.getElementById("p2-hp-txt").innerText = p2.hp + "%";
-        }
 
         function loop() {
             if (hitstop > 0) { hitstop--; requestAnimationFrame(loop); return; }
@@ -174,11 +173,11 @@
             if (active) requestAnimationFrame(loop);
         }
 
-        // 🛠️ 버튼 조작 바인딩 (터치 씹힘 방지)
         const bind = (id, key) => {
             const el = document.getElementById(id);
             el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
             el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
+            el.onpointerleave = (e) => { e.preventDefault(); heldKeys.delete(key); };
         };
 
         document.getElementById("start-btn").onclick = () => {
@@ -187,10 +186,11 @@
                 document.getElementById("vs-screen").remove();
                 document.getElementById("hud").classList.remove("hidden");
                 document.getElementById("controls").classList.remove("hidden");
-                p1 = new Fighter(80, "KAI", true); p2 = new Fighter(300, "BRUNO", false);
+                p1 = new Fighter(80, "KAI", SPRITES.p1, true);
+                p2 = new Fighter(300, "BRUNO", SPRITES.p2, false);
                 bind("left", "Left"); bind("right", "Right"); bind("up", "Up");
-                document.getElementById("btn-p").onpointerdown = () => p1.doAction("punch", p2);
-                document.getElementById("btn-k").onpointerdown = () => p1.doAction("kick", p2);
+                document.getElementById("btn-p").onpointerdown = () => p1.attack(p2);
+                document.getElementById("btn-k").onpointerdown = () => p1.attack(p2);
                 active = true; loop();
             }, 600);
         };

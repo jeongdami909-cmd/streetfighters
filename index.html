@@ -1,194 +1,304 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>STREET CODING FIGHTER v4.0 - NEON</title>
-    <style>
-        :root {
-            --neon-green: #39ff14;
-            --neon-red: #ff073a;
-            --neon-blue: #00f3ff;
-        }
-        body {
-            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1b 100%);
-            color: white;
-            font-family: 'Press Start 2P', 'Courier New', monospace; /* 오락실 폰트 느낌 */
-            text-align: center;
-            overflow: hidden;
-            margin: 0; padding: 0;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh;
-        }
-        
-        /* 아케이드 전광판 느낌 */
-        h1 {
-            font-size: 2.5rem;
-            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
-            margin-bottom: 20px;
-        }
-
-        /* 체력바 디자인 업그레이드 */
-        .ui-layer { display: flex; width: 90%; justify-content: space-between; margin-bottom: 50px; }
-        .hp-box { width: 45%; border: 4px solid #fff; box-shadow: 0 0 15px #fff; padding: 5px; background: #000; }
-        .hp-bar { height: 30px; background: var(--neon-green); width: 100%; transition: width 0.2s, background 0.5s; }
-        
-        /* 캐릭터 및 히트 효과 */
-        #stage { display: flex; justify-content: space-around; width: 80%; align-items: flex-end; height: 200px; }
-        .character { font-size: 8rem; transition: transform 0.1s; position: relative; }
-        
-        /* 개별 흔들림 효과 (지피티 피드백 반영) */
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-15px) rotate(-5deg); }
-            75% { transform: translateX(15px) rotate(5deg); }
-        }
-        .hit-shake { animation: shake 0.2s 2; }
-        
-        /* 데미지 텍스트 */
-        .dmg-popup {
-            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-            color: var(--neon-red); font-size: 2.5rem; font-weight: bold;
-            opacity: 0; pointer-events: none; text-shadow: 2px 2px #000;
-        }
-
-        /* 입력창 디자인 */
-        .input-zone { margin-top: 50px; }
-        #code-input {
-            background: #000; color: var(--neon-green);
-            border: 4px solid var(--neon-green); padding: 15px; font-size: 1.8rem;
-            text-align: center; width: 350px; box-shadow: 0 0 20px var(--neon-green);
-            outline: none;
-        }
-
-        /* 게임 오버 레이어 */
-        #overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 100;
-        }
-        #overlay h2 { font-size: 4rem; color: var(--neon-red); margin-bottom: 30px; }
-        button {
-            padding: 15px 40px; font-size: 1.5rem; cursor: pointer;
-            background: var(--neon-blue); border: none; font-family: inherit;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>STREET CODING FIGHTER v5.5 - GEMINI POLISH</title>
+<style>
+:root {
+ --neon-green: #39ff14;
+ --neon-red: #ff073a;
+ --neon-blue: #00f3ff;
+}
+body {
+ margin: 0;
+ background: radial-gradient(circle, #1a1a2e 0%, #0f0f1b 100%);
+ font-family: 'Courier New', monospace;
+ color: white;
+ overflow: hidden;
+ text-align: center;
+ transition: filter 0.2s, background 0.2s;
+}
+body.ultimate-mode {
+ filter: invert(1) hue-rotate(180deg);
+ background: radial-gradient(circle, #ffffff 0%, #dddddd 100%);
+}
+h1 {
+ margin-top: 20px;
+ text-shadow: 0 0 10px var(--neon-blue);
+}
+.top-ui {
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+ padding: 20px 50px;
+ font-size: 1.2rem;
+ font-weight: bold;
+}
+.hp-box {
+ width: 300px;
+ height: 25px;
+ border: 3px solid white;
+ background: black;
+ box-shadow: 0 0 10px white;
+ position: relative;
+}
+.hp-bar {
+ height: 100%;
+ width: 100%;
+ background: var(--neon-green);
+ transition: width 0.2s ease-out, background-color 0.3s;
+}
+#timer {
+ font-size: 2.5rem;
+ color: #fff;
+ text-shadow: 0 0 15px #fff;
+}
+#stage {
+ display: flex;
+ justify-content: space-around;
+ align-items: flex-end;
+ height: 300px;
+}
+.character {
+ font-size: 8rem;
+ position: relative;
+ transition: all 0.1s ease-out;
+}
+.character.attack { transform: translateX(40px); }
+.character.dash { transform: translateX(80px) skewX(-15deg); }
+.character.hit { filter: brightness(2) drop-shadow(0 0 20px red); transform: translateX(-10px); }
+.character.guard { opacity: 0.5; filter: drop-shadow(0 0 15px var(--neon-blue)); }
+.dmg {
+ position: absolute;
+ top: -50px;
+ left: 50%;
+ transform: translateX(-50%);
+ font-size: 2.5rem;
+ color: var(--neon-red);
+ font-weight: bold;
+ opacity: 0;
+ transition: opacity 0.3s, top 0.3s;
+ text-shadow: 2px 2px 0 #000;
+}
+#gauge-box {
+ width: 80%;
+ margin: 20px auto;
+ height: 15px;
+ border: 2px solid var(--neon-blue);
+ background: #000;
+ position: relative;
+}
+#gauge {
+ height: 100%;
+ width: 0%;
+ background: var(--neon-blue);
+ transition: width 0.3s ease-out;
+ box-shadow: 0 0 10px var(--neon-blue);
+}
+#gauge-text {
+ position: absolute;
+ width: 100%;
+ text-align: center;
+ top: -2px;
+ font-size: 0.8rem;
+ font-weight: bold;
+}
+#input {
+ margin-top: 20px;
+ padding: 15px;
+ font-size: 1.5rem;
+ background: black;
+ color: var(--neon-green);
+ border: 3px solid var(--neon-green);
+ text-align: center;
+ width: 300px;
+ outline: none;
+ text-transform: lowercase;
+}
+#input:focus { box-shadow: 0 0 15px var(--neon-green); }
+#ko {
+ position: fixed;
+ top: 40%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ font-size: 8rem;
+ color: var(--neon-red);
+ display: none;
+ animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+ text-shadow: 0 0 30px var(--neon-red), 5px 5px 0 #000;
+ z-index: 100;
+}
+@keyframes pop {
+ 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
+ 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes shake {
+ 0% { transform: translate(0); }
+ 25% { transform: translate(-10px, 5px); }
+ 50% { transform: translate(10px, -5px); }
+ 75% { transform: translate(-5px, -5px); }
+ 100% { transform: translate(0); }
+}
+.shake { animation: shake 0.2s; }
+</style>
 </head>
 <body>
 
-    <h1>STREET CODING FIGHTER</h1>
+<h1>STREET CODING FIGHTER v5.5</h1>
 
-    <div class="ui-layer">
-        <div class="hp-box"><div id="p-hp-bar" class="hp-bar"></div></div>
-        <div class="hp-box"><div id="e-hp-bar" class="hp-bar"></div></div>
-    </div>
+<div class="top-ui">
+ <div>
+  PLAYER
+  <div class="hp-box"><div id="pHP" class="hp-bar"></div></div>
+ </div>
+ <div id="timer">90</div>
+ <div>
+  ENEMY
+  <div class="hp-box"><div id="eHP" class="hp-bar"></div></div>
+ </div>
+</div>
 
-    <div id="stage">
-        <div id="player" class="character">🧑‍💻<div id="p-dmg" class="dmg-popup"></div></div>
-        <div id="enemy" class="character">👾<div id="e-dmg" class="dmg-popup"></div></div>
-    </div>
+<div id="stage">
+ <div id="player" class="character">🧑‍💻<div id="pDmg" class="dmg"></div></div>
+ <div id="enemy" class="character">👾<div id="eDmg" class="dmg"></div></div>
+</div>
 
-    <div class="input-zone">
-        <div id="combo-log" style="height: 30px; color: var(--neon-blue); margin-bottom: 10px;"></div>
-        <input type="text" id="code-input" placeholder="READY?" autocomplete="off">
-    </div>
+<div id="gauge-box">
+  <div id="gauge"></div>
+  <div id="gauge-text">ULTIMATE GAUGE</div>
+</div>
 
-    <div id="overlay">
-        <h2 id="result-text">GAME OVER</h2>
-        <button onclick="location.reload()">RETRY?</button>
-    </div>
+<input id="input" placeholder="COMMAND..." autocomplete="off" autofocus>
 
-    <script>
-        const input = document.getElementById('code-input');
-        const pBar = document.getElementById('p-hp-bar');
-        const eBar = document.getElementById('e-hp-bar');
-        const player = document.getElementById('player');
-        const enemy = document.getElementById('enemy');
-        const comboLog = document.getElementById('combo-log');
-        const overlay = document.getElementById('overlay');
+<div id="ko">KO!</div>
 
-        let pHP = 100, eHP = 100, combo = [];
-        let isHealing = false;
+<script>
+let pHP = 100, eHP = 100, time = 90;
+let combo = [];
+let isGuard = false;
+let gauge = 0;
+let isGameOver = false;
 
-        // 타격 효과 함수 (지피티 피드백: 개별 흔들림)
-        function hitEffect(target, damage) {
-            const char = target === 'e' ? enemy : player;
-            const dmgBox = target === 'e' ? document.getElementById('e-dmg') : document.getElementById('p-dmg');
-            
-            char.classList.add('hit-shake');
-            dmgBox.innerText = `-${damage}`;
-            dmgBox.style.opacity = 1;
-            
-            setTimeout(() => {
-                char.classList.remove('hit-shake');
-                dmgBox.style.opacity = 0;
-            }, 400);
-        }
+const pBar = document.getElementById("pHP");
+const eBar = document.getElementById("eHP");
+const timer = document.getElementById("timer");
+const input = document.getElementById("input");
+const player = document.getElementById("player");
+const enemy = document.getElementById("enemy");
+const pDmg = document.getElementById("pDmg");
+const eDmg = document.getElementById("eDmg");
+const gaugeBar = document.getElementById("gauge");
+const ko = document.getElementById("ko");
 
-        // 콤보 시스템 (지피티 피드백: 콤보 추가)
-        function checkCombo(cmd) {
-            combo.push(cmd);
-            if (combo.length > 3) combo.shift();
-            
-            const sequence = combo.join('');
-            if (sequence === 'aas') {
-                comboLog.innerText = "🔥 SMASH COMBO!! 🔥";
-                combo = [];
-                return 40; // 콤보 보너스 데미지
-            }
-            comboLog.innerText = combo.join(' > ');
-            return 0;
-        }
+function showDamageText(element, amount) {
+  element.innerText = "-" + amount;
+  element.style.opacity = 1;
+  element.style.top = "-80px";
+  setTimeout(() => {
+    element.style.opacity = 0;
+    element.style.top = "-50px";
+  }, 400);
+}
 
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const cmd = e.target.value.trim().toLowerCase();
-                e.target.value = '';
-                
-                let dmg = 0;
-                if (cmd === 'a') dmg = 10;
-                if (cmd === 's') dmg = 20;
-                
-                if (dmg > 0) {
-                    const bonus = checkCombo(cmd);
-                    eHP = Math.max(0, eHP - (dmg + bonus)); // 지피티 피드백: Math.max 사용
-                    hitEffect('e', dmg + bonus);
-                } else if (cmd === 'h') {
-                    // 지피티 피드백: 힐 리스크 (힐 도중 데미지 2배)
-                    isHealing = true;
-                    comboLog.innerText = "✨ HEALING... (RISK UP!)";
-                    pHP = Math.min(100, pHP + 20);
-                    setTimeout(() => { isHealing = false; }, 1500);
-                }
+function damage(target, amount) {
+ if (target === "enemy") {
+   eHP = Math.max(0, eHP - amount);
+   showDamageText(eDmg, amount);
+   enemy.classList.add("hit");
+   setTimeout(() => enemy.classList.remove("hit"), 300);
+ } else {
+   pHP = Math.max(0, pHP - amount);
+   showDamageText(pDmg, amount);
+   player.classList.add("hit");
+   setTimeout(() => player.classList.remove("hit"), 300);
+ }
+ document.body.classList.add("shake");
+ setTimeout(() => document.body.classList.remove("shake"), 200);
+ update();
+}
 
-                updateGame();
-            }
-        });
+function update() {
+ pBar.style.width = pHP + "%";
+ eBar.style.width = eHP + "%";
+ pBar.style.backgroundColor = pHP <= 30 ? "var(--neon-red)" : "var(--neon-green)";
+ eBar.style.backgroundColor = eHP <= 30 ? "var(--neon-red)" : "var(--neon-green)";
+ gaugeBar.style.width = gauge + "%";
+ gaugeBar.style.backgroundColor = gauge >= 100 ? "var(--neon-red)" : "var(--neon-blue)";
+ 
+ if ((pHP <= 0 || eHP <= 0 || time <= 0) && !isGameOver) {
+   endGame();
+ }
+}
 
-        // 적 AI 패턴 (지피티 피드백: 랜덤 스킬)
-        const enemyAI = setInterval(() => {
-            if (pHP <= 0 || eHP <= 0) return;
-            
-            const attackType = Math.random();
-            let enemyDmg = attackType > 0.8 ? 15 : 7; // 20% 확률로 강공격
-            
-            if (isHealing) enemyDmg *= 2; // 힐링 리스크 적용!
+function endGame() {
+ isGameOver = true;
+ clearInterval(enemyAI);
+ clearInterval(timerInt);
+ input.disabled = true; // 게임 오버 시 입력 차단
+ ko.innerText = pHP <= 0 ? "DEFEAT" : "VICTORY!";
+ ko.style.display = "block";
+}
 
-            pHP = Math.max(0, pHP - enemyDmg);
-            hitEffect('p', enemyDmg);
-            updateGame();
-        }, 2000);
+input.addEventListener("keydown", e => {
+ if (e.key === "Enter" && !isGameOver) {
+   const cmd = e.target.value.trim().toLowerCase();
+   e.target.value = "";
+   
+   combo.push(cmd);
+   if (combo.length > 2) combo.shift();
 
-        function updateGame() {
-            pBar.style.width = pHP + '%';
-            eBar.style.width = eHP + '%';
-            pBar.style.background = pHP < 30 ? 'var(--neon-red)' : 'var(--neon-green)';
+   let isDash = false;
+   
+   // 대쉬 판정 (중복 입력 방지)
+   if (combo.join("") === "dd") {
+     isDash = true;
+     player.classList.add("dash");
+     setTimeout(() => player.classList.remove("dash"), 250);
+     combo = []; // 대쉬 후 콤보 초기화
+   }
 
-            if (pHP <= 0 || eHP <= 0) {
-                clearInterval(enemyAI);
-                overlay.style.display = 'flex';
-                document.getElementById('result-text').innerText = eHP <= 0 ? "VICTORY!" : "DEFEAT";
-            }
-        }
-    </script>
+   // 공격 및 방어 판정
+   if (cmd === "a") { 
+     gauge = Math.min(100, gauge + 10); 
+     damage("enemy", 10); 
+   } else if (cmd === "s") { 
+     gauge = Math.min(100, gauge + 15); 
+     damage("enemy", 20); 
+   } else if (cmd === "d" && !isDash) { 
+     isGuard = true;
+     player.classList.add("guard");
+     setTimeout(() => { isGuard = false; player.classList.remove("guard"); }, 800);
+   } else if (cmd === "code" && gauge >= 100) {
+     // 궁극기 연출 (화면 반전)
+     document.body.classList.add("ultimate-mode");
+     setTimeout(() => document.body.classList.remove("ultimate-mode"), 500);
+     damage("enemy", 50);
+     gauge = 0;
+   }
+   
+   update();
+ }
+});
+
+const enemyAI = setInterval(() => {
+ if (isGameOver) return;
+ let dmg = Math.random() > 0.8 ? 20 : 10;
+ if (isGuard) {
+   dmg = Math.floor(dmg * 0.3); // 방어 시 데미지 70% 감소
+   document.body.classList.add("shake"); // 가드 임팩트
+   setTimeout(() => document.body.classList.remove("shake"), 100);
+ }
+ damage("player", dmg);
+}, 2500);
+
+const timerInt = setInterval(() => {
+ if (isGameOver) return;
+ time--;
+ timer.innerText = time;
+ if (time <= 0) endGame();
+}, 1000);
+
+update();
+</script>
 </body>
 </html>

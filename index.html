@@ -3,38 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STREET CODING FIGHTER v14.0</title>
+<title>STREET CODING FIGHTER v15.0</title>
 <style>
-    body { margin: 0; background: #000; overflow: hidden; touch-action: none; }
+    body { margin: 0; background: #000; overflow: hidden; touch-action: none; -webkit-user-select: none; }
     canvas { display: block; margin: auto; }
+    /* 개선된 오버레이: z-index 강화 */
     #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); display: flex; flex-direction: column;
-        align-items: center; justify-content: center; z-index: 100;
-        color: #ffcc33; font-family: 'Courier New', monospace;
+        background: linear-gradient(to bottom, #1a1a2e, #000);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace;
     }
     #start-btn {
-        padding: 20px 60px; font-size: 2rem; background: #ff4444;
-        color: white; border: none; border-radius: 50px; cursor: pointer;
-        box-shadow: 0 0 30px #ff4444; margin-top: 30px;
+        padding: 20px 80px; font-size: 2.5rem; background: #ff4444;
+        color: white; border: 5px solid white; border-radius: 50px; cursor: pointer;
+        box-shadow: 0 0 40px #ff4444; margin-top: 40px; font-weight: bold;
     }
+    /* 조작 버튼 레이어: z-index 확인 */
     #controls {
-        position: fixed; bottom: 30px; width: 100%; display: flex;
-        justify-content: space-around; pointer-events: none;
+        position: fixed; bottom: 40px; width: 100%; display: flex;
+        justify-content: space-around; z-index: 500; pointer-events: none;
     }
     .btn {
-        width: 80px; height: 80px; background: rgba(255,255,255,0.2);
-        border: 3px solid #fff; border-radius: 50%; color: white;
+        width: 100px; height: 100px; background: rgba(255,255,255,0.25);
+        border: 4px solid #fff; border-radius: 50%; color: white;
         display: flex; align-items: center; justify-content: center;
-        font-weight: bold; pointer-events: auto; font-size: 1.2rem;
+        font-weight: bold; pointer-events: auto; font-size: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5); -webkit-tap-highlight-color: transparent;
     }
+    .btn:active { background: rgba(255,255,255,0.5); transform: scale(0.9); }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 3rem; text-shadow: 0 0 20px red;">STREET CODING</h1>
-    <p>막대그래프가 아닌 진짜 격투가 시작됩니다</p>
+    <h1 style="font-size: 3.5rem; text-shadow: 0 0 30px red; margin: 0;">STREET FIGHTER</h1>
+    <h2 style="color: #fff; letter-spacing: 5px;">CODING CLONE</h2>
+    <p style="margin-top: 20px;">[Part 1: Intro & Interactive Setup]</p>
     <button id="start-btn">FIGHT!</button>
 </div>
 
@@ -50,122 +55,113 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const startBtn = document.getElementById("start-btn");
+const overlay = document.getElementById("overlay");
 
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
 window.addEventListener('resize', resize);
 resize();
 
-// 튜토리얼 2, 3편의 애니메이션 데이터 구조 응용
-const anims = {
-    p1: { idle: "🧑‍💻", attack: "👊", hit: "🤕" },
-    p2: { idle: "👾", attack: "💥", hit: "😵" }
-};
-
+// 사운드 리소스
 const sounds = {
     hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
     bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
 };
 
 class Fighter {
-    constructor(x, side, config) {
+    constructor(x, config) {
         this.x = x; this.y = canvas.height * 0.8;
         this.vx = 0; this.hp = 100;
         this.state = "idle";
-        this.side = side; // 1: 왼쪽, -1: 오른쪽
         this.config = config;
-    }
-
-    // 튜토리얼 5편의 충돌 판정
-    getHurtBox() { return { x: this.x - 40, y: this.y - 150, w: 80, h: 150 }; }
-    getHitBox() {
-        if (this.state !== "attack") return null;
-        return { x: this.x + (this.side * 50), y: this.y - 120, w: 60, h: 50 };
     }
 
     update(opponent) {
         if (this.hp <= 0) return;
         this.x += this.vx;
+        this.x = Math.max(50, Math.min(canvas.width - 50, this.x)); // 경계 제한
 
-        // 경계 제한
-        this.x = Math.max(50, Math.min(canvas.width - 50, this.x));
-
-        // 공격 판정 로직
-        const hit = this.getHitBox();
-        const target = opponent.getHurtBox();
-        if (hit && hit.x < target.x + target.w && hit.x + hit.w > target.x && opponent.state !== "hit") {
-            opponent.hp -= 10;
-            opponent.state = "hit";
-            sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
-            setTimeout(() => opponent.state = "idle", 400);
+        // 충돌 로직
+        if (this.state === "attack") {
+            const dist = Math.abs(this.x - opponent.x);
+            if (dist < 100 && opponent.state !== "hit") {
+                opponent.hp -= 10;
+                opponent.state = "hit";
+                sounds.hit.currentTime = 0;
+                sounds.hit.play().catch(()=>{});
+                setTimeout(() => { if(opponent.hp > 0) opponent.state = "idle"; }, 400);
+            }
         }
     }
 
     draw() {
         ctx.save();
-        // 캐릭터 드로잉 (막대그래프 대신 텍스트/이모지 파이터)
         ctx.font = "120px Arial";
         ctx.textAlign = "center";
-        
-        // 그림자 효과
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "rgba(0,0,0,0.5)";
-        
-        const currentImg = anims[this.config][this.state];
-        ctx.fillText(currentImg, this.x, this.y);
+        const emoji = this.state === "attack" ? "👊" : (this.state === "hit" ? "🤕" : "🧑‍💻");
+        ctx.fillText(emoji, this.x, this.y);
 
-        // HP 바 (이름표 포함)
-        ctx.shadowBlur = 0;
-        ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.fillRect(this.x - 50, this.y - 180, 100, 10);
+        // HP 바
+        ctx.fillStyle = "#444"; ctx.fillRect(this.x - 50, this.y - 180, 100, 10);
         ctx.fillStyle = this.hp > 30 ? "#39ff14" : "#ff4444";
         ctx.fillRect(this.x - 50, this.y - 180, this.hp, 10);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(canvas.width * 0.25, 1, "p1");
-const p2 = new Fighter(canvas.width * 0.75, -1, "p2");
+const p1 = new Fighter(canvas.width * 0.25, "p1");
+const p2 = new Fighter(canvas.width * 0.75, "p2");
 
 function loop() {
-    // 모네의 '노을' 배경
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
     grad.addColorStop(0, "#1a1a2e"); grad.addColorStop(0.5, "#000"); grad.addColorStop(1, "#6a5acd");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    p1.update(p2); p2.update(p1);
-    p1.draw(); p2.draw();
-
-    if (p1.hp <= 0 || p2.hp <= 0) {
-        ctx.fillStyle = "white"; ctx.font = "50px Arial";
-        ctx.fillText("GAME OVER", canvas.width/2, canvas.height/2);
-    } else {
-        requestAnimationFrame(loop);
-    }
+    p1.update(p2); p2.draw(); p1.draw();
+    if (p1.hp > 0 && p2.hp > 0) requestAnimationFrame(loop);
 }
 
-// 모바일 컨트롤 및 시동
+// 🛠️ 버튼 버그 수정: 통합 이벤트 핸들러
+function bindBtn(id, downFn, upFn) {
+    const el = document.getElementById(id);
+    // 모바일 터치와 PC 클릭을 모두 처리
+    const startEvent = 'ontouchstart' in window ? 'touchstart' : 'mousedown';
+    const endEvent = 'ontouchend' in window ? 'touchend' : 'mouseup';
+
+    el.addEventListener(startEvent, (e) => { e.preventDefault(); downFn(); });
+    el.addEventListener(endEvent, (e) => { e.preventDefault(); upFn(); });
+    // 손가락이 버튼 밖으로 나갔을 때도 멈추도록 추가
+    el.addEventListener('touchcancel', (e) => { e.preventDefault(); upFn(); });
+}
+
+bindBtn("btn-left", () => p1.vx = -7, () => p1.vx = 0);
+bindBtn("btn-right", () => p1.vx = 7, () => p1.vx = 0);
+bindBtn("btn-atk", () => {
+    if (p1.state === "idle") {
+        p1.state = "attack";
+        setTimeout(() => { if(p1.hp > 0) p1.state = "idle"; }, 300);
+    }
+}, () => {});
+
+// 시동 로직 강화
 function startGame() {
-    document.getElementById("overlay").style.display = "none";
+    overlay.style.pointerEvents = "none"; // 버튼 클릭 방해 방지
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 500);
+    
+    loop(); // 루프를 먼저 실행하여 까만 화면 방지
     sounds.bgm.loop = true;
-    sounds.bgm.play().catch(()=>{});
-    loop();
+    sounds.bgm.play().catch(() => console.log("Audio play failed, loop continues."));
 }
 
 startBtn.addEventListener("click", startGame);
-startBtn.addEventListener("touchstart", startGame);
-
-// 터치 버튼 로직
-document.getElementById("btn-left").onpointerdown = () => p1.vx = -5;
-document.getElementById("btn-left").onpointerup = () => p1.vx = 0;
-document.getElementById("btn-right").onpointerdown = () => p1.vx = 5;
-document.getElementById("btn-right").onpointerup = () => p1.vx = 0;
-document.getElementById("btn-atk").onpointerdown = () => {
-    if (p1.state === "idle") {
-        p1.state = "attack";
-        setTimeout(() => p1.state = "idle", 300);
-    }
-};
+startBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    startGame();
+});
 </script>
 </body>
 </html>

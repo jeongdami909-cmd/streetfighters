@@ -3,31 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STREET CODING FIGHTER v19.0</title>
+<title>STREET CODING FIGHTER v21.0 - MAYA EDITION</title>
 <style>
+    /* 튜토리얼 2편: 픽셀 아트 최적화 렌더링 */
     canvas { image-rendering: pixelated; object-fit: contain; width: 100%; height: 100%; background: #000; }
-    body { margin: 0; background: #000; overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
-    #start-btn { padding: 20px 80px; font-size: 2.5rem; background: #ff4444; color: white; border: 5px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 40px #ff4444; font-weight: bold; }
+    body { margin: 0; background: #081212; overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; height: 100vh; }
+    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8,18,18,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #0df2f2; font-family: 'Space Grotesk', sans-serif; }
+    #start-btn { padding: 20px 80px; font-size: 2rem; background: #ff00ff; color: white; border: 4px solid #fff; border-radius: 5px; cursor: pointer; box-shadow: 0 0 30px #ff00ff; font-weight: 900; italic: true; }
     #controls { position: fixed; bottom: 30px; width: 100%; display: flex; justify-content: space-around; z-index: 500; pointer-events: none; }
-    .btn { width: 90px; height: 90px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.2rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .btn { width: 80px; height: 80px; background: rgba(13,242,242,0.1); border: 2px solid #0df2f2; border-radius: 5px; color: #0df2f2; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1rem; user-select: none; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 3rem; text-shadow: 0 0 30px red; margin: 0;">STREET CODING</h1>
-    <p style="letter-spacing: 3px;">Part 6: Advanced Input & Shadows</p>
+    <h1 style="font-size: 3.5rem; text-shadow: 0 0 20px #0df2f2; margin: 0; font-style: italic;">MAYA READY</h1>
+    <p style="letter-spacing: 5px; color: #ff00ff;">SELECT YOUR FIGHTER: PLAYER 1</p>
     <button id="start-btn">FIGHT!</button>
 </div>
 
 <canvas id="game" width="384" height="224"></canvas>
 
 <div id="controls">
-    <div class="btn" id="left">LEFT</div>
-    <div class="btn" id="atk">ATK</div>
-    <div class="btn" id="right">RIGHT</div>
-    <div class="btn" id="jump">JUMP</div>
+    <div class="btn" id="btn-jump">JUMP</div>
+    <div class="btn" id="btn-left">LEFT</div>
+    <div class="btn" id="btn-atk">ATK</div>
+    <div class="btn" id="btn-right">RIGHT</div>
+    <div class="btn" id="btn-crouch">CROUCH</div>
 </div>
 
 <script>
@@ -36,127 +38,124 @@ const ctx = canvas.getContext("2d");
 const GROUND_Y = 190;
 const GRAVITY = 0.6;
 
-// 🛠️ 튜토리얼 6편: 입력 핸들러 (지속 입력 추적)
+// 🛠️ 선택 화면에서 가져온 캐릭터 이미지 로드
+const images = {
+    maya: new Image(),
+    kenji: new Image()
+};
+images.maya.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBLDWAwd3VUzuqVuX4Tg5fLg4ofTR0tsW2HBjFcIeiPJyXo5vlqz85-PDtzJ_hgLKZG9IJ092a-jzElWjqNPWg1l4pH6j1F9jEY-yEero0SW9hCLUE-SwBzTgEyyOLrTiwAs4l9SpCWJOk3awseaZSQrpCQcTvVy4Z3OJuLvJBJju8yDXXLmI63E4wN2aRtM2sU4oY5JTex8gqk-KK5pVaeW2j2Pxq7YEhbiMYkTL6EcTG6oBwkKaapAh7IJ1k2_5SHwkwhQGTonH0y"; // 마야 스프라이트
+images.kenji.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuAkDCiSlUR_vV82fR_TchrdPgvaXfvZucs4DeFY2BpaVmuBg4RrIc_Dmm-1PWNBqAWtw15ZtJroN_vZutm0dcmn3ZjUnppIRLLixHyJqT_uZQX6QBJy2nbrKnN-RJQS3_kq61w88_asWvTp9xqP4AR7oF2WzuuU9zJ3I7T6gJBJ7gT5oYpEfqvdQBfCFnHZiydkKTWqBVt1N19mpUQluvWHAq4k1U_VxqugwaiPsTUci_E1UVxjiYdKzjYC09DuGjxtq25s8wWhL3Vz"; // 켄지
+
 const heldKeys = new Set();
 window.addEventListener("keydown", (e) => heldKeys.add(e.code));
 window.addEventListener("keyup", (e) => heldKeys.delete(e.code));
 
-const ANIMS = {
-    p1: { idle: ["🧑‍💻", "👨‍💻"], walk: ["🏃", "🚶"], jump: ["✈️"], attack: ["👊", "🤜"], hit: ["🤕"] },
-    p2: { idle: ["👾", "💀"], walk: ["👣", "💀"], jump: ["🛸"], attack: ["💥", "🔥"], hit: ["😵"] }
-};
-
 class Fighter {
-    constructor(x, id, config) {
+    constructor(x, id, img) {
         this.x = x; this.y = GROUND_Y;
         this.vx = 0; this.vy = 0;
         this.hp = 100;
         this.id = id;
-        this.config = config;
+        this.img = img;
         this.currentState = "idle";
-        this.frameIndex = 0;
-        this.animTimer = 0;
         this.facing = id === "P1" ? 1 : -1;
+        this.width = 60; this.height = 80; // 이미지 크기에 맞춘 박스 설정
     }
 
-    // 🛠️ 튜토리얼 6편: 상태 머신 고도화
-    update(time, opponent) {
-        // 입력 상태에 따른 상태 전환
-        if (this.currentState !== "jump" && this.currentState !== "hit" && this.currentState !== "attack") {
-            if (heldKeys.has(this.id === "P1" ? "ArrowLeft" : "KeyA")) {
-                this.currentState = "walk";
-                this.vx = -3;
-            } else if (heldKeys.has(this.id === "P1" ? "ArrowRight" : "KeyD")) {
-                this.currentState = "walk";
-                this.vx = 3;
-            } else {
-                this.currentState = "idle";
-                this.vx = 0;
-            }
+    getPushBox() {
+        return { x: this.x - 20, y: this.y - 60, w: 40, h: 60 };
+    }
 
-            if (heldKeys.has(this.id === "P1" ? "ArrowUp" : "KeyW")) {
-                this.currentState = "jump";
-                this.vy = -12;
-            }
+    update(opponent) {
+        // 자동 방향 전환
+        this.facing = this.x < opponent.x ? 1 : -1;
+
+        // 입력 처리 및 상태 머신
+        if (this.currentState !== "jump" && this.currentState !== "attack") {
+            const isLeft = heldKeys.has(this.id === "P1" ? "ArrowLeft" : "KeyA");
+            const isRight = heldKeys.has(this.id === "P1" ? "ArrowRight" : "KeyD");
+            const isUp = heldKeys.has(this.id === "P1" ? "ArrowUp" : "KeyW");
+            const isDown = heldKeys.has(this.id === "P1" ? "ArrowDown" : "KeyS");
+
+            if (isUp) { this.currentState = "jump"; this.vy = -12; }
+            else if (isDown) this.currentState = "crouch";
+            else if (isLeft || isRight) { this.vx = isLeft ? -3 : 3; this.currentState = "walk"; }
+            else { this.vx = 0; this.currentState = "idle"; }
         }
 
         this.vy += GRAVITY;
-        this.x += this.vx;
-        this.y += this.vy;
+        this.x += this.vx; this.y += this.vy;
 
         if (this.y >= GROUND_Y) {
-            this.y = GROUND_Y;
-            this.vy = 0;
+            this.y = GROUND_Y; this.vy = 0;
             if (this.currentState === "jump") this.currentState = "idle";
         }
 
-        this.x = Math.max(20, Math.min(364, this.x));
-
-        // 애니메이션 타이머
-        if (time - this.animTimer > 100) {
-            this.frameIndex = (this.frameIndex + 1) % ANIMS[this.config][this.currentState].length;
-            this.animTimer = time;
-            if (this.currentState === "attack" && this.frameIndex === 0) this.currentState = "idle";
+        // 푸시 박스 물리
+        const myBox = this.getPushBox();
+        const opBox = opponent.getPushBox();
+        if (myBox.x < opBox.x + opBox.w && myBox.x + myBox.w > opBox.x) {
+            this.x += this.x < opponent.x ? -2 : 2;
         }
+
+        this.x = Math.max(20, Math.min(364, this.x));
     }
 
     draw() {
         ctx.save();
-        // 🛠️ 튜토리얼 6편: 캐릭터 그림자 (점프 시 거리감 구현)
-        const jumpDist = GROUND_Y - this.y;
-        const shadowScale = Math.max(0.2, 1 - (jumpDist / 100));
-        ctx.globalAlpha = 0.4 * shadowScale;
-        ctx.fillStyle = "black";
-        ctx.beginPath();
-        ctx.ellipse(this.x, GROUND_Y, 20 * shadowScale, 5 * shadowScale, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = 1.0;
-
-        ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = "60px Arial";
-        if (this.currentState === "hit") ctx.filter = "brightness(2)";
-        ctx.fillText(ANIMS[this.config][this.currentState][this.frameIndex], this.x, this.y);
+        // 🛠️ 튜토리얼 4편의 스프라이트 드로잉 (이미지 출력)
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.facing, 1);
         
-        // HP 바
-        ctx.filter = "none";
-        ctx.fillStyle = "#444"; ctx.fillRect(this.x - 20, this.y - 75, 40, 4);
-        ctx.fillStyle = this.hp > 30 ? "#39ff14" : "#ff4444";
-        ctx.fillRect(this.x - 20, this.y - 75, (this.hp/100)*40, 4);
+        // 이미지의 특정 섹션을 그리는 drawImage 파라미터 활용
+        // 여기서는 전체 이미지를 캐릭터 크기에 맞춰 출력
+        ctx.drawImage(this.img, -this.width/2, -this.height, this.width, this.height);
+        
+        // HP 바 (선택 화면의 Primary 컬러 적용)
+        ctx.scale(this.facing, 1); // 텍스트 반전 방지
+        ctx.fillStyle = "#ff00ff"; ctx.fillRect(-20, -this.height - 10, 40, 4);
+        ctx.fillStyle = "#0df2f2"; ctx.fillRect(-20, -this.height - 10, (this.hp/100)*40, 4);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(100, "P1", "p1");
-const p2 = new Fighter(280, "P2", "p2");
+let p1, p2;
 
-function loop(timestamp) {
-    const sky = ctx.createLinearGradient(0, 0, 0, 224);
-    sky.addColorStop(0, "#1a1a2e"); sky.addColorStop(0.5, "#000"); sky.addColorStop(1, "#6a5acd");
-    ctx.fillStyle = sky;
+function loop() {
+    // 배경: 선택 화면의 어두운 테마 계승
+    ctx.fillStyle = "#081212";
     ctx.fillRect(0, 0, 384, 224);
+    
+    // 바닥선 (선택 화면의 사이언 컬러)
+    ctx.strokeStyle = "#0df2f2"; ctx.globalAlpha = 0.3;
+    ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(384, GROUND_Y); ctx.stroke();
+    ctx.globalAlpha = 1.0;
 
-    p1.update(timestamp, p2); p2.update(timestamp, p1);
+    p1.update(p2); p2.update(p1);
     p1.draw(); p2.draw();
     requestAnimationFrame(loop);
 }
 
-// 🛠️ 가상 버튼을 전문 입력 핸들러(Set)와 연결
 function bind(id, code) {
     const el = document.getElementById(id);
     const down = (e) => { e.preventDefault(); heldKeys.add(code); };
     const up = (e) => { e.preventDefault(); heldKeys.delete(code); };
     el.addEventListener('touchstart', down, {passive: false});
     el.addEventListener('touchend', up, {passive: false});
-    el.addEventListener('mousedown', down);
-    el.addEventListener('mouseup', up);
+    el.addEventListener('mousedown', down); el.addEventListener('mouseup', up);
 }
 
-bind("left", "ArrowLeft");
-bind("right", "ArrowRight");
-bind("jump", "ArrowUp");
-document.getElementById("atk").onpointerdown = () => { if(p1.currentState !== "attack") { p1.currentState = "attack"; p1.frameIndex = 0; } };
+bind("btn-left", "ArrowLeft"); bind("btn-right", "ArrowRight");
+bind("btn-jump", "ArrowUp"); bind("btn-crouch", "ArrowDown");
+document.getElementById("btn-atk").onpointerdown = () => { 
+    p1.currentState = "attack"; 
+    setTimeout(() => p1.currentState = "idle", 300);
+    if (Math.abs(p1.x - p2.x) < 50) p2.hp -= 10;
+};
 
 document.getElementById("start-btn").onclick = () => { 
+    p1 = new Fighter(100, "P1", images.maya);
+    p2 = new Fighter(280, "P2", images.kenji);
     document.getElementById("overlay").remove(); 
     requestAnimationFrame(loop); 
 };

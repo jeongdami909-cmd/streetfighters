@@ -2,303 +2,123 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>STREET CODING FIGHTER v5.5 - GEMINI POLISH</title>
+<title>STREET CODING FIGHTER v6.0 - SF2 ENGINE</title>
 <style>
-:root {
- --neon-green: #39ff14;
- --neon-red: #ff073a;
- --neon-blue: #00f3ff;
-}
-body {
- margin: 0;
- background: radial-gradient(circle, #1a1a2e 0%, #0f0f1b 100%);
- font-family: 'Courier New', monospace;
- color: white;
- overflow: hidden;
- text-align: center;
- transition: filter 0.2s, background 0.2s;
-}
-body.ultimate-mode {
- filter: invert(1) hue-rotate(180deg);
- background: radial-gradient(circle, #ffffff 0%, #dddddd 100%);
-}
-h1 {
- margin-top: 20px;
- text-shadow: 0 0 10px var(--neon-blue);
-}
-.top-ui {
- display: flex;
- justify-content: space-between;
- align-items: center;
- padding: 20px 50px;
- font-size: 1.2rem;
- font-weight: bold;
-}
-.hp-box {
- width: 300px;
- height: 25px;
- border: 3px solid white;
- background: black;
- box-shadow: 0 0 10px white;
- position: relative;
-}
-.hp-bar {
- height: 100%;
- width: 100%;
- background: var(--neon-green);
- transition: width 0.2s ease-out, background-color 0.3s;
-}
-#timer {
- font-size: 2.5rem;
- color: #fff;
- text-shadow: 0 0 15px #fff;
-}
-#stage {
- display: flex;
- justify-content: space-around;
- align-items: flex-end;
- height: 300px;
-}
-.character {
- font-size: 8rem;
- position: relative;
- transition: all 0.1s ease-out;
-}
-.character.attack { transform: translateX(40px); }
-.character.dash { transform: translateX(80px) skewX(-15deg); }
-.character.hit { filter: brightness(2) drop-shadow(0 0 20px red); transform: translateX(-10px); }
-.character.guard { opacity: 0.5; filter: drop-shadow(0 0 15px var(--neon-blue)); }
-.dmg {
- position: absolute;
- top: -50px;
- left: 50%;
- transform: translateX(-50%);
- font-size: 2.5rem;
- color: var(--neon-red);
- font-weight: bold;
- opacity: 0;
- transition: opacity 0.3s, top 0.3s;
- text-shadow: 2px 2px 0 #000;
-}
-#gauge-box {
- width: 80%;
- margin: 20px auto;
- height: 15px;
- border: 2px solid var(--neon-blue);
- background: #000;
- position: relative;
-}
-#gauge {
- height: 100%;
- width: 0%;
- background: var(--neon-blue);
- transition: width 0.3s ease-out;
- box-shadow: 0 0 10px var(--neon-blue);
-}
-#gauge-text {
- position: absolute;
- width: 100%;
- text-align: center;
- top: -2px;
- font-size: 0.8rem;
- font-weight: bold;
-}
-#input {
- margin-top: 20px;
- padding: 15px;
- font-size: 1.5rem;
- background: black;
- color: var(--neon-green);
- border: 3px solid var(--neon-green);
- text-align: center;
- width: 300px;
- outline: none;
- text-transform: lowercase;
-}
-#input:focus { box-shadow: 0 0 15px var(--neon-green); }
-#ko {
- position: fixed;
- top: 40%;
- left: 50%;
- transform: translate(-50%, -50%);
- font-size: 8rem;
- color: var(--neon-red);
- display: none;
- animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
- text-shadow: 0 0 30px var(--neon-red), 5px 5px 0 #000;
- z-index: 100;
-}
-@keyframes pop {
- 0% { transform: translate(-50%, -50%) scale(0.1); opacity: 0; }
- 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-@keyframes shake {
- 0% { transform: translate(0); }
- 25% { transform: translate(-10px, 5px); }
- 50% { transform: translate(10px, -5px); }
- 75% { transform: translate(-5px, -5px); }
- 100% { transform: translate(0); }
-}
-.shake { animation: shake 0.2s; }
+:root { --neon-green: #39ff14; --neon-red: #ff073a; --neon-blue: #00f3ff; }
+body { margin: 0; background: #0f0f1b; font-family: 'Courier New', monospace; color: white; overflow: hidden; text-align: center; }
+.top-ui { display: flex; justify-content: space-between; padding: 20px 50px; }
+.hp-box { width: 300px; height: 25px; border: 3px solid #fff; background: #000; overflow: hidden; }
+.hp-bar { height: 100%; width: 100%; background: var(--neon-green); transition: width 0.3s; }
+#timer { font-size: 3rem; text-shadow: 0 0 10px #fff; }
+
+#stage { display: flex; justify-content: space-around; align-items: flex-end; height: 350px; perspective: 1000px; }
+/* SF2 튜토리얼의 스프라이트 로직을 구현한 캐릭터 스타일 */
+.character { font-size: 8rem; position: relative; transition: transform 0.2s; filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+.character.flipped { transform: scaleX(-1); } /* 방향 전환 로직 */
+
+#input { margin-top: 30px; padding: 15px; font-size: 1.5rem; background: #000; color: var(--neon-green); border: 3px solid var(--neon-green); text-align: center; width: 400px; outline: none; }
+#gauge-box { width: 80%; margin: 20px auto; height: 10px; border: 2px solid var(--neon-blue); background: #000; }
+#gauge { height: 100%; width: 0%; background: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); transition: width 0.3s; }
+#ko { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 8rem; color: var(--neon-red); display: none; z-index: 100; text-shadow: 0 0 20px #000; }
 </style>
 </head>
 <body>
 
-<h1>STREET CODING FIGHTER v5.5</h1>
+<h1>STREET CODING FIGHTER v6.0</h1>
 
 <div class="top-ui">
- <div>
-  PLAYER
-  <div class="hp-box"><div id="pHP" class="hp-bar"></div></div>
- </div>
- <div id="timer">90</div>
- <div>
-  ENEMY
-  <div class="hp-box"><div id="eHP" class="hp-bar"></div></div>
- </div>
+    <div>PLAYER<div class="hp-box"><div id="pHP" class="hp-bar"></div></div></div>
+    <div id="timer">90</div>
+    <div>ENEMY<div class="hp-box"><div id="eHP" class="hp-bar"></div></div></div>
 </div>
 
 <div id="stage">
- <div id="player" class="character">🧑‍💻<div id="pDmg" class="dmg"></div></div>
- <div id="enemy" class="character">👾<div id="eDmg" class="dmg"></div></div>
+    <div id="player" class="character">🧑‍💻</div>
+    <div id="enemy" class="character">👾</div>
 </div>
 
-<div id="gauge-box">
-  <div id="gauge"></div>
-  <div id="gauge-text">ULTIMATE GAUGE</div>
-</div>
-
-<input id="input" placeholder="COMMAND..." autocomplete="off" autofocus>
-
+<div id="gauge-box"><div id="gauge"></div></div>
+<input id="input" placeholder="a: ATK | s: SMASH | d: GUARD | dd: DASH" autocomplete="off" autofocus>
 <div id="ko">KO!</div>
 
 <script>
-let pHP = 100, eHP = 100, time = 90;
-let combo = [];
-let isGuard = false;
-let gauge = 0;
-let isGameOver = false;
+// SF2 튜토리얼 기반 애니메이션 데이터 구조
+const animData = {
+    idle: { frames: ["🧑‍💻", "👨‍💻"], speed: 30 }, // 프레임 속도 제어
+    attack: { frames: ["👊", "🤜", "🧑‍💻"], speed: 10, next: "idle" },
+    smash: { frames: ["🔥", "☄️", "💥", "🧑‍💻"], speed: 12, next: "idle" },
+    hit: { frames: ["🤕", "😵"], speed: 15, next: "idle" },
+    guard: { frames: ["🛡️"], speed: 50, next: "idle" },
+    dash: { frames: ["💨", "🏃"], speed: 8, next: "idle" }
+};
 
-const pBar = document.getElementById("pHP");
-const eBar = document.getElementById("eHP");
-const timer = document.getElementById("timer");
-const input = document.getElementById("input");
-const player = document.getElementById("player");
-const enemy = document.getElementById("enemy");
-const pDmg = document.getElementById("pDmg");
-const eDmg = document.getElementById("eDmg");
-const gaugeBar = document.getElementById("gauge");
-const ko = document.getElementById("ko");
+let pState = "idle", eState = "idle";
+let pFrame = 0, eFrame = 0;
+let pTick = 0, eTick = 0;
+let pHP = 100, eHP = 100, time = 90, gauge = 0, isGuard = false;
 
-function showDamageText(element, amount) {
-  element.innerText = "-" + amount;
-  element.style.opacity = 1;
-  element.style.top = "-80px";
-  setTimeout(() => {
-    element.style.opacity = 0;
-    element.style.top = "-50px";
-  }, 400);
+function updateAnimation(char, stateObj, frameRef, tickRef) {
+    tickRef.val++;
+    if (tickRef.val >= animData[stateObj.val].speed) {
+        tickRef.val = 0;
+        frameRef.val++;
+        if (frameRef.val >= animData[stateObj.val].frames.length) {
+            if (animData[stateObj.val].next) {
+                stateObj.val = animData[stateObj.val].next;
+                frameRef.val = 0;
+            } else {
+                frameRef.val = 0;
+            }
+        }
+        document.getElementById(char).innerText = animData[stateObj.val].frames[frameRef.val];
+    }
 }
 
-function damage(target, amount) {
- if (target === "enemy") {
-   eHP = Math.max(0, eHP - amount);
-   showDamageText(eDmg, amount);
-   enemy.classList.add("hit");
-   setTimeout(() => enemy.classList.remove("hit"), 300);
- } else {
-   pHP = Math.max(0, pHP - amount);
-   showDamageText(pDmg, amount);
-   player.classList.add("hit");
-   setTimeout(() => player.classList.remove("hit"), 300);
- }
- document.body.classList.add("shake");
- setTimeout(() => document.body.classList.remove("shake"), 200);
- update();
+// 메인 게임 루프 (튜토리얼의 requestAnimationFrame 방식 응용)
+function gameLoop() {
+    if (pHP <= 0 || eHP <= 0) return;
+
+    // 객체 참조를 위한 래퍼
+    let pS = {val: pState}, pF = {val: pFrame}, pT = {val: pTick};
+    let eS = {val: eState}, eF = {val: eFrame}, eT = {val: eTick};
+
+    updateAnimation("player", pS, pF, pT);
+    updateAnimation("enemy", eS, eF, eT);
+
+    pState = pS.val; pFrame = pF.val; pTick = pT.val;
+    eState = eS.val; eFrame = eF.val; eTick = eT.val;
+
+    requestAnimationFrame(gameLoop);
 }
 
-function update() {
- pBar.style.width = pHP + "%";
- eBar.style.width = eHP + "%";
- pBar.style.backgroundColor = pHP <= 30 ? "var(--neon-red)" : "var(--neon-green)";
- eBar.style.backgroundColor = eHP <= 30 ? "var(--neon-red)" : "var(--neon-green)";
- gaugeBar.style.width = gauge + "%";
- gaugeBar.style.backgroundColor = gauge >= 100 ? "var(--neon-red)" : "var(--neon-blue)";
- 
- if ((pHP <= 0 || eHP <= 0 || time <= 0) && !isGameOver) {
-   endGame();
- }
-}
+// 입력 처리 및 상태 전환
+document.getElementById("input").addEventListener("keydown", e => {
+    if (e.key === "Enter") {
+        const cmd = e.target.value.trim().toLowerCase();
+        e.target.value = "";
+        
+        if (cmd === 'a') { pState = "attack"; eHP -= 5; gauge += 10; }
+        else if (cmd === 's') { pState = "smash"; eHP -= 15; gauge += 20; }
+        else if (cmd === 'd') { pState = "guard"; isGuard = true; setTimeout(() => isGuard = false, 500); }
+        else if (cmd === 'dd') { pState = "dash"; }
 
-function endGame() {
- isGameOver = true;
- clearInterval(enemyAI);
- clearInterval(timerInt);
- input.disabled = true; // 게임 오버 시 입력 차단
- ko.innerText = pHP <= 0 ? "DEFEAT" : "VICTORY!";
- ko.style.display = "block";
-}
-
-input.addEventListener("keydown", e => {
- if (e.key === "Enter" && !isGameOver) {
-   const cmd = e.target.value.trim().toLowerCase();
-   e.target.value = "";
-   
-   combo.push(cmd);
-   if (combo.length > 2) combo.shift();
-
-   let isDash = false;
-   
-   // 대쉬 판정 (중복 입력 방지)
-   if (combo.join("") === "dd") {
-     isDash = true;
-     player.classList.add("dash");
-     setTimeout(() => player.classList.remove("dash"), 250);
-     combo = []; // 대쉬 후 콤보 초기화
-   }
-
-   // 공격 및 방어 판정
-   if (cmd === "a") { 
-     gauge = Math.min(100, gauge + 10); 
-     damage("enemy", 10); 
-   } else if (cmd === "s") { 
-     gauge = Math.min(100, gauge + 15); 
-     damage("enemy", 20); 
-   } else if (cmd === "d" && !isDash) { 
-     isGuard = true;
-     player.classList.add("guard");
-     setTimeout(() => { isGuard = false; player.classList.remove("guard"); }, 800);
-   } else if (cmd === "code" && gauge >= 100) {
-     // 궁극기 연출 (화면 반전)
-     document.body.classList.add("ultimate-mode");
-     setTimeout(() => document.body.classList.remove("ultimate-mode"), 500);
-     damage("enemy", 50);
-     gauge = 0;
-   }
-   
-   update();
- }
+        gauge = Math.min(100, gauge);
+        document.getElementById("eHP").style.width = eHP + "%";
+        document.getElementById("gauge").style.width = gauge + "%";
+    }
 });
 
-const enemyAI = setInterval(() => {
- if (isGameOver) return;
- let dmg = Math.random() > 0.8 ? 20 : 10;
- if (isGuard) {
-   dmg = Math.floor(dmg * 0.3); // 방어 시 데미지 70% 감소
-   document.body.classList.add("shake"); // 가드 임팩트
-   setTimeout(() => document.body.classList.remove("shake"), 100);
- }
- damage("player", dmg);
-}, 2500);
+// 타이머 및 AI
+setInterval(() => { if (time > 0 && pHP > 0 && eHP > 0) { time--; document.getElementById("timer").innerText = time; } }, 1000);
+setInterval(() => { 
+    if (pHP > 0 && eHP > 0 && pState !== "dash") {
+        pHP -= isGuard ? 2 : 10;
+        pState = isGuard ? "guard" : "hit";
+        document.getElementById("pHP").style.width = pHP + "%";
+    }
+}, 3000);
 
-const timerInt = setInterval(() => {
- if (isGameOver) return;
- time--;
- timer.innerText = time;
- if (time <= 0) endGame();
-}, 1000);
-
-update();
+gameLoop();
 </script>
 </body>
 </html>

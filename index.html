@@ -3,48 +3,59 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Nexus Strike: Tactical Prototype</title>
+    <title>Nexus Strike: Interactive Core</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
-        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#ec5b13", "neon-blue": "#00f3ff", "neon-amber": "#ffaa00", "background-dark": "#101622" } } } }
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#258cf4", "neon-blue": "#00f3ff", "neon-amber": "#ffaa00", "background-dark": "#101622" } } } }
     </script>
     <style>
         body { background: #101622; overflow: hidden; touch-action: none; font-family: 'Public Sans', sans-serif; }
-        canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; filter: contrast(1.1); }
-        .cyber-grid { background-image: linear-gradient(rgba(236, 91, 19, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 91, 19, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
-        #hud { pointer-events: none; }
-        .btn:active { background: #00f3ff !important; color: #000 !important; }
+        /* 🛠️ 해결방법 1: 캔버스 이벤트 개방 */
+        canvas { 
+            position: absolute; top: 0; left: 0;
+            image-rendering: pixelated; object-fit: contain; 
+            width: 100vw; height: 100vh; z-index: 0; 
+            pointer-events: none; 
+        }
+        .cyber-grid { background-image: linear-gradient(rgba(13, 89, 242, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 89, 242, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        /* 🛠️ 해결방법 2: UI 레이어 Z-index 강화 */
+        #ui-layer { position: relative; z-index: 50; width: 100%; height: 100vh; pointer-events: none; }
+        .interactive { pointer-events: auto; }
+        .btn:active { background: #00f3ff !important; color: #000 !important; transform: scale(0.9); }
     </style>
 </head>
 <body class="bg-background-dark text-white select-none">
 
-    <div id="vs-intro" class="fixed inset-0 z-[100] bg-background-dark flex flex-col items-center justify-center transition-opacity duration-500">
-        <div class="absolute inset-0 cyber-grid opacity-30"></div>
-        <h1 class="text-6xl font-black italic text-neon-blue mb-8">ZERO <span class="text-white">VS</span> KAEL</h1>
-        <button id="start-btn" class="px-12 py-5 bg-primary text-white font-black text-xl rounded-lg shadow-[0_0_30px_rgba(236,91,19,0.5)] active:scale-95 transition">SYSTEM LINK START</button>
+    <div class="absolute inset-0 cyber-grid opacity-30"></div>
+
+    <div id="vs-intro" class="interactive fixed inset-0 z-[100] bg-background-dark flex flex-col items-center justify-center transition-opacity duration-500">
+        <h1 class="text-6xl font-black italic text-neon-blue mb-8">ZERO <span class="text-white text-3xl">VS</span> KAEL</h1>
+        <button id="start-btn" class="px-12 py-5 bg-primary text-white font-black text-xl rounded-lg shadow-2xl active:scale-95 transition">ENGAGE NEURAL LINK</button>
     </div>
 
-    <div id="hud" class="hidden fixed top-0 inset-x-0 z-50 p-6 flex justify-between items-start">
-        <div class="w-1/3"><div class="h-6 bg-black/40 border border-white/20"><div id="p1-hp" class="h-full bg-neon-blue transition-all" style="width: 100%"></div></div><p class="text-neon-blue font-bold mt-1">ZERO</p></div>
-        <div class="bg-black/80 border-x-4 border-primary px-4 py-1 text-4xl font-black italic text-primary">99</div>
-        <div class="w-1/3"><div class="h-6 bg-black/40 border border-white/20"><div id="p2-hp" class="h-full bg-neon-amber transition-all ml-auto" style="width: 100%"></div></div><p class="text-neon-amber font-bold text-right mt-1">KAEL (AI)</p></div>
+    <div id="ui-layer">
+        <div id="hud" class="hidden absolute top-0 inset-x-0 p-6 flex justify-between items-start">
+            <div class="w-1/3"><div class="h-4 bg-black/40 border border-white/20"><div id="p1-hp" class="h-full bg-neon-blue transition-all" style="width: 100%"></div></div></div>
+            <div class="bg-black/60 border-x-4 border-primary px-4 py-1 text-3xl font-black italic text-primary">99</div>
+            <div class="w-1/3"><div class="h-4 bg-black/40 border border-white/20 flex flex-row-reverse"><div id="p2-hp" class="h-full bg-neon-amber transition-all" style="width: 100%"></div></div></div>
+        </div>
+
+        <div id="controls" class="hidden absolute bottom-10 inset-x-0 px-8 flex justify-between items-end">
+            <div class="grid grid-cols-3 gap-2 interactive">
+                <div class="size-14"></div><button id="ctrl-up" class="btn size-14 bg-white/10 rounded-lg border border-white/20">▲</button><div></div>
+                <button id="ctrl-left" class="btn size-14 bg-white/10 rounded-lg border border-white/20">◀</button>
+                <button id="ctrl-down" class="btn size-14 bg-white/10 rounded-lg border border-white/20">▼</button>
+                <button id="ctrl-right" class="btn size-14 bg-white/10 rounded-lg border border-white/20">▶</button>
+            </div>
+            <div class="grid grid-cols-2 gap-4 interactive">
+                <button id="btn-p" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">P</button>
+                <button id="btn-k" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">K</button>
+            </div>
+        </div>
     </div>
 
     <canvas id="game" width="384" height="224"></canvas>
-
-    <div id="controls" class="hidden fixed bottom-8 inset-x-0 z-50 flex justify-between px-8 items-end pointer-events-none">
-        <div class="grid grid-cols-3 gap-2 pointer-events-auto">
-            <div class="size-14"></div><button id="ctrl-up" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▲</button><div></div>
-            <button id="ctrl-left" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">◀</button>
-            <button id="ctrl-down" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▼</button>
-            <button id="ctrl-right" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▶</button>
-        </div>
-        <div class="grid grid-cols-2 gap-4 pointer-events-auto">
-            <button id="btn-p" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">P</button>
-            <button id="btn-k" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">K</button>
-        </div>
-    </div>
 
     <script>
         const canvas = document.getElementById("game");
@@ -53,97 +64,62 @@
         const GRAVITY = 0.6;
         const heldKeys = new Set();
 
-        // 🛠️ 이미지 깨짐 대비 폴백 로직
-        const SPRITES = { bg: new Image(), p1: [], p2: new Image() };
-        SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A";
-        SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
-
         class Fighter {
-            constructor(x, id, isPlayer) {
+            constructor(x, color, isPlayer) {
                 this.x = x; this.y = GROUND_Y;
                 this.vx = 0; this.vy = 0;
-                this.hp = 100; this.id = id;
-                this.state = "idle"; // idle, walk, jump, attack, hit, roll, down
+                this.hp = 100; this.color = color;
+                this.state = "idle"; // idle, walk, jump, punch, kick, hit
                 this.frame = 0; this.timer = 0;
                 this.facing = isPlayer ? 1 : -1;
                 this.isPlayer = isPlayer;
-                this.invulnerable = false;
             }
 
-            // 🛠️ 정교한 판정 시스템 (특정 프레임에서만 타격)
-            checkHit(target) {
-                if (target.invulnerable || target.state === "down") return;
-                const hitRange = this.state === "punch" ? 45 : 60;
-                const dist = Math.abs(this.x - target.x);
-                // 공격 프레임이 절정일 때만 판정
-                if (this.frame === 1 && dist < hitRange) {
-                    target.takeDamage(this.state === "punch" ? 8 : 12, this);
+            // AI 추격 로직 (v24.0 기반 고도화)
+            updateAI(target) {
+                if (this.state === "hit" || this.state === "punch") return;
+                const d = Math.abs(this.x - target.x);
+                if (d > 60) { this.vx = this.x < target.x ? 1.5 : -1.5; this.state = "walk"; }
+                else { this.vx = 0; if(Math.random() < 0.04) this.attack(target); else this.state = "idle"; }
+            }
+
+            attack(target) {
+                this.state = "punch"; this.frame = 0;
+                if (Math.abs(this.x - target.x) < 55 && target.state !== "roll") {
+                    target.hp = Math.max(0, target.hp - 10);
+                    target.state = "hit";
+                    document.getElementById(target.isPlayer ? "p1-hp" : "p2-hp").style.width = target.hp + "%";
                 }
-            }
-
-            takeDamage(amt, attacker) {
-                this.hp = Math.max(0, this.hp - amt);
-                this.state = "hit";
-                this.frame = 0;
-                this.vx = attacker.facing * 4; // 넉백 물리 적용
-                document.getElementById(`${this.isPlayer ? "p1" : "p2"}-hp`).style.width = this.hp + "%";
-                setTimeout(() => { if(this.hp > 0) this.state = "idle"; else this.state = "down"; }, 300);
             }
 
             update(t, target) {
-                if (this.state === "down") { this.vx = 0; return; }
-
-                // 🛠️ 상태 전이 규칙 강화
                 if (this.isPlayer) {
-                    if (!["attack", "hit", "roll"].includes(this.state)) {
-                        const isL = heldKeys.has("Left"); const isR = heldKeys.has("Right");
-                        const isD = heldKeys.has("Down");
-                        
-                        if (isD && (isL || isR)) { this.state = "roll"; this.invulnerable = true; this.vx = (isL ? -6 : 6); }
-                        else if (isL) { this.vx = -3.5; this.state = "walk"; }
-                        else if (isR) { this.vx = 3.5; this.state = "walk"; }
+                    if (!["punch", "hit"].includes(this.state)) {
+                        if (heldKeys.has("Left")) { this.vx = -3.5; this.state = "walk"; }
+                        else if (heldKeys.has("Right")) { this.vx = 3.5; this.state = "walk"; }
                         else { this.vx = 0; this.state = "idle"; }
-
                         if (heldKeys.has("Up") && this.y >= GROUND_Y) this.vy = -12;
                     }
-                } else {
-                    // AI 추격 및 거리 기반 공격
-                    const d = Math.abs(this.x - target.x);
-                    if (this.state === "idle" || this.state === "walk") {
-                        if (d > 60) { this.vx = this.x < target.x ? 2 : -2; this.state = "walk"; }
-                        else { this.vx = 0; if(Math.random() < 0.05) { this.state = Math.random() > 0.5 ? "punch" : "kick"; this.frame = 0; } }
-                    }
-                }
-
-                if (this.state === "attack") this.checkHit(target);
+                } else this.updateAI(target);
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
                 this.x = Math.max(20, Math.min(364, this.x));
-                if (this.state !== "roll") this.facing = this.x < target.x ? 1 : -1;
+                this.facing = this.x < target.x ? 1 : -1;
 
-                // 애니메이션 타이머
                 if (t - this.timer > 100) {
-                    this.frame = (this.frame + 1) % 2;
-                    this.timer = t;
-                    if (this.state === "roll") { this.invulnerable = false; this.state = "idle"; }
-                    if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
+                    this.frame = (this.frame + 1) % 2; this.timer = t;
+                    if (["punch", "hit"].includes(this.state) && this.frame === 0) this.state = "idle";
                 }
             }
 
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
+                ctx.fillStyle = this.state === "hit" ? "white" : this.color;
+                ctx.fillRect(-15, -50, 30, 50); // 캐릭터 몸체
                 
-                // 🛠️ 이미지 실패 시 폴백 렌더링 (그림만 붙인 게 아니라는 증거!)
-                ctx.fillStyle = this.state === "hit" ? "white" : (this.isPlayer ? "#00f3ff" : "#ffaa00");
-                if (this.state === "roll") ctx.globalAlpha = 0.5;
-                
-                // 캐릭터 본체 (박스 + 이모지)
-                ctx.fillRect(-15, -50, 30, 50);
-                ctx.fillStyle = "white"; ctx.font = "20px Arial"; ctx.textAlign = "center";
-                const emoji = this.state === "punch" ? "👊" : (this.state === "kick" ? "👟" : (this.state === "hit" ? "🤕" : "👤"));
-                ctx.fillText(emoji, 0, -20);
-                
+                // 공격 모션 시각화
+                if (this.state === "punch") { ctx.fillStyle = "white"; ctx.fillRect(10, -40, 30, 10); }
                 ctx.restore();
             }
         }
@@ -157,25 +133,29 @@
             requestAnimationFrame(loop);
         }
 
+        // 🛠️ 버튼 조작 바인딩 (이벤트 전파 보장)
+        const setup = (id, key) => {
+            const el = document.getElementById(id);
+            const down = (e) => { e.preventDefault(); heldKeys.add(key); };
+            const up = (e) => { e.preventDefault(); heldKeys.delete(key); };
+            el.addEventListener('pointerdown', down);
+            el.addEventListener('pointerup', up);
+            el.addEventListener('pointerleave', up);
+        };
+
         document.getElementById("start-btn").onclick = () => {
             document.getElementById("vs-intro").classList.add("opacity-0");
             setTimeout(() => {
                 document.getElementById("vs-intro").remove();
                 document.getElementById("hud").classList.remove("hidden");
                 document.getElementById("controls").classList.remove("hidden");
-                p1 = new Fighter(80, "ZERO", true); p2 = new Fighter(300, "KAEL", false);
+                p1 = new Fighter(80, "#00f3ff", true); p2 = new Fighter(300, "#ffaa00", false);
+                setup("ctrl-left", "Left"); setup("ctrl-right", "Right"); setup("ctrl-up", "Up");
+                document.getElementById("btn-p").onpointerdown = () => p1.attack(p2);
+                document.getElementById("btn-k").onpointerdown = () => p1.attack(p2);
                 active = true; requestAnimationFrame(loop);
             }, 600);
         };
-
-        const setup = (id, key) => {
-            const el = document.getElementById(id);
-            el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
-            el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
-        };
-        setup("ctrl-left", "Left"); setup("ctrl-right", "Right"); setup("ctrl-up", "Up"); setup("ctrl-down", "Down");
-        document.getElementById("btn-p").onpointerdown = () => { if(p1.state === "idle") { p1.state = "punch"; p1.frame = 0; } };
-        document.getElementById("btn-k").onpointerdown = () => { if(p1.state === "idle") { p1.state = "kick"; p1.frame = 0; } };
     </script>
 </body>
 </html>

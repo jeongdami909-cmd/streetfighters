@@ -3,72 +3,46 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Nexus Strike: Neon Fury</title>
+    <title>Nexus Strike: Tactical Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#ec5b13", "neon-blue": "#00f3ff", "neon-amber": "#ffaa00", "background-dark": "#101622" } } } }
     </script>
     <style>
-        body { background: #101622; overflow: hidden; touch-action: none; font-family: 'Public Sans', sans-serif; -webkit-user-select: none; }
-        canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; }
+        body { background: #101622; overflow: hidden; touch-action: none; font-family: 'Public Sans', sans-serif; }
+        canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; filter: contrast(1.1); }
         .cyber-grid { background-image: linear-gradient(rgba(236, 91, 19, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 91, 19, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
-        .ultimate-overlay { display: none; background: rgba(0,0,0,0.8); z-index: 200; pointer-events: none; }
-        @keyframes slash { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-        .slash-anim { animation: slash 0.3s ease-out forwards; transform-origin: left; }
+        #hud { pointer-events: none; }
+        .btn:active { background: #00f3ff !important; color: #000 !important; }
     </style>
 </head>
-<body class="bg-background-dark text-white">
+<body class="bg-background-dark text-white select-none">
 
-    <div id="vs-screen" class="fixed inset-0 z-[100] bg-background-dark flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="vs-intro" class="fixed inset-0 z-[100] bg-background-dark flex flex-col items-center justify-center transition-opacity duration-500">
         <div class="absolute inset-0 cyber-grid opacity-30"></div>
-        <div class="flex gap-8 md:gap-20 items-center z-10">
-            <div class="text-center">
-                <div class="size-48 md:size-72 border-2 border-neon-blue rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBP8nw5vNjt7bi6IsVhAmQniJ3hzTRh3hRKqn1vUTckYCzwA7Bo1jQ55Giilsh0tS47xgwfHrbKaKlDbZpsgm0vOzHH1GCvcL-cCwULJv0bA5y-xBZUve_IFaLw2ZddvpfA19FTNCj1HCfCk9ozKrLZ2P3amibHTyQcVX819EBTdtiuSZIiIkr7oQrRAXD1hxP-QrurS7OJyRAP1Pl6wAebQvgu7E12D9tu6tM1rdD_3S1wFasgHoMBVGUOTp95w1QccAqGkCD1hQ8');"></div>
-                <h1 class="text-4xl font-black italic mt-4 text-neon-blue">ZERO</h1>
-            </div>
-            <div class="text-7xl font-black italic text-primary italic">VS</div>
-            <div class="text-center">
-                <div class="size-48 md:size-72 border-2 border-primary rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC4BNMBOQy8Uz62HXWOE3VuQawfZvaGrm3y38t-b3ZhWv9k2d97OSghZAGghB2xOvonOAtV1dsxR2d-Oyz1iptqCFgA9HYPyXci4_suvokH5zZ47r0ldHfU_dchB_jtWym0nmTfw1In1To4JpUsuFj_1A7MGusZau1Xhen3ZH5eCdOFDT-FMm5K4__BHj1-Sqc_z8h6fwB6JbQmWe4Wix_mDAAk7BQZt8gmMXbndb8RX1OLz8-XqftWoYFecdyjqh8-ULRDTibBROc');"></div>
-                <h1 class="text-4xl font-black italic mt-4 text-primary">KAEL</h1>
-            </div>
-        </div>
-        <button id="start-btn" class="mt-12 px-12 py-5 bg-primary text-white font-black text-xl rounded-lg shadow-2xl hover:scale-105 transition active:scale-95">ENGAGE NEURAL LINK</button>
+        <h1 class="text-6xl font-black italic text-neon-blue mb-8">ZERO <span class="text-white">VS</span> KAEL</h1>
+        <button id="start-btn" class="px-12 py-5 bg-primary text-white font-black text-xl rounded-lg shadow-[0_0_30px_rgba(236,91,19,0.5)] active:scale-95 transition">SYSTEM LINK START</button>
     </div>
 
-    <div id="ult-layer" class="ultimate-overlay fixed inset-0 flex flex-col items-center justify-center overflow-hidden">
-        <div class="absolute w-[150%] h-4 bg-neon-blue rotate-[35deg] shadow-[0_0_50px_#00f3ff] slash-anim"></div>
-        <div class="absolute w-[150%] h-4 bg-neon-blue -rotate-[25deg] shadow-[0_0_50px_#00f3ff] slash-anim"></div>
-        <div class="relative transform -skew-x-12 bg-black/80 px-10 py-4 border-y-4 border-neon-blue">
-            <h2 class="text-neon-blue text-6xl font-black italic italic tracking-tighter">ULTIMATE SKILL</h2>
-            <div class="bg-neon-blue px-4 mt-2 text-black text-center font-bold">NEON REVENGE</div>
-        </div>
-    </div>
-
-    <div id="hud" class="hidden fixed top-0 inset-x-0 z-50 p-6 flex justify-between items-start pointer-events-none">
-        <div class="w-1/3 flex items-center gap-3">
-            <div class="size-12 border-2 border-neon-blue bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUU5a73IyqEH10DaQ81mvBsk-hlWAP6eB4fNkTbY60wDX6HHNnmVaRtAv-hoJN-isOu_af0nRn9pY6sSeyi5eU7OQP6qzpHZ9ZjznnDD91IZ6G9jw7QaAPumD_JbJzN04xE7oT-wJ_Z3a3ELFYU3WTUJkrNFzXQCLvFis3QWa8ydEmnlmBLkmmTXToq9BZ-1YvdtFCAtqEaXDwiIg-NLDFPmUVieHnXSV0XVUdhwq8y0KUP-28X0KEzoUEioGHIFJGxXhZ-ythYVs')"></div></div>
-            <div class="flex-1"><div id="p1-hp" class="h-4 bg-neon-blue transition-all" style="width: 100%"></div></div>
-        </div>
-        <div class="bg-black/80 border-x-4 border-primary px-6 py-2 rounded-b-xl"><h2 id="timer" class="text-primary text-4xl font-black italic">99</h2></div>
-        <div class="w-1/3 flex flex-row-reverse items-center gap-3">
-            <div class="size-12 border-2 border-neon-amber bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFqpjO4PrXf8GyC91uLsbkpKd_0oOew4RBmXt5IQtSh4N-_u-HUXM7myAQhzPgW6-uC86w5ulWBtvyDTJLuqFeQzDmyR9ipxBtlHi8a-3ERAmlO2duiXJvfAor9ZDEgDstVCh42Gb5CcnaQICXkyRrhA3AtfrcIganLfnMaWLzc6bF7q2ANV0LACD-0gaIRCev-WoKaLESo_P93TfUfhOH_0WJ_EprZfoldd3w4-W5oV_bOLkdKhVceU6Y_C8UoB5X77r_e6LdwiU')"></div></div>
-            <div class="flex-1 text-right"><div id="p2-hp" class="h-4 bg-neon-amber transition-all ml-auto" style="width: 100%"></div></div>
-        </div>
+    <div id="hud" class="hidden fixed top-0 inset-x-0 z-50 p-6 flex justify-between items-start">
+        <div class="w-1/3"><div class="h-6 bg-black/40 border border-white/20"><div id="p1-hp" class="h-full bg-neon-blue transition-all" style="width: 100%"></div></div><p class="text-neon-blue font-bold mt-1">ZERO</p></div>
+        <div class="bg-black/80 border-x-4 border-primary px-4 py-1 text-4xl font-black italic text-primary">99</div>
+        <div class="w-1/3"><div class="h-6 bg-black/40 border border-white/20"><div id="p2-hp" class="h-full bg-neon-amber transition-all ml-auto" style="width: 100%"></div></div><p class="text-neon-amber font-bold text-right mt-1">KAEL (AI)</p></div>
     </div>
 
     <canvas id="game" width="384" height="224"></canvas>
 
-    <div id="controls" class="hidden fixed bottom-10 inset-x-0 z-50 flex justify-between px-10 items-end">
-        <div class="grid grid-cols-3 gap-2">
-            <div class="size-14"></div><button id="up" class="size-14 bg-white/10 rounded-lg border border-white/20 text-white">▲</button><div class="size-14"></div>
-            <button id="left" class="size-14 bg-white/10 rounded-lg border border-white/20 text-white">◀</button><div class="size-14"></div><button id="right" class="size-14 bg-white/10 rounded-lg border border-white/20 text-white">▶</button>
+    <div id="controls" class="hidden fixed bottom-8 inset-x-0 z-50 flex justify-between px-8 items-end pointer-events-none">
+        <div class="grid grid-cols-3 gap-2 pointer-events-auto">
+            <div class="size-14"></div><button id="ctrl-up" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▲</button><div></div>
+            <button id="ctrl-left" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">◀</button>
+            <button id="ctrl-down" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▼</button>
+            <button id="ctrl-right" class="btn size-14 bg-white/10 rounded-lg border border-white/20 text-white">▶</button>
         </div>
-        <div class="grid grid-cols-2 gap-4 items-end">
-            <button id="p-btn" class="size-16 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black italic">P</button>
-            <button id="k-btn" class="size-16 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black italic">K</button>
-            <button id="ult-btn" class="col-span-2 size-20 rounded-full border-4 border-primary bg-primary/20 text-primary shadow-2xl flex items-center justify-center"><span class="material-symbols-outlined text-4xl">bolt</span></button>
+        <div class="grid grid-cols-2 gap-4 pointer-events-auto">
+            <button id="btn-p" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">P</button>
+            <button id="btn-k" class="btn size-20 rounded-full border-2 border-neon-blue bg-black/40 text-neon-blue font-black">K</button>
         </div>
     </div>
 
@@ -79,12 +53,8 @@
         const GRAVITY = 0.6;
         const heldKeys = new Set();
 
-        // 🛠️ 이미지 프리로드
-        const SPRITES = {
-            bg: new Image(),
-            p1: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
-            p2: new Image()
-        };
+        // 🛠️ 이미지 깨짐 대비 폴백 로직
+        const SPRITES = { bg: new Image(), p1: [], p2: new Image() };
         SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A";
         SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
 
@@ -93,65 +63,87 @@
                 this.x = x; this.y = GROUND_Y;
                 this.vx = 0; this.vy = 0;
                 this.hp = 100; this.id = id;
-                this.state = "idle";
+                this.state = "idle"; // idle, walk, jump, attack, hit, roll, down
                 this.frame = 0; this.timer = 0;
                 this.facing = isPlayer ? 1 : -1;
                 this.isPlayer = isPlayer;
-                this.isHit = false;
+                this.invulnerable = false;
             }
 
-            // 🛠️ 지능형 전술 AI
-            updateAI(target) {
-                if (this.isHit || ["punch", "kick", "ult"].includes(this.state)) return;
+            // 🛠️ 정교한 판정 시스템 (특정 프레임에서만 타격)
+            checkHit(target) {
+                if (target.invulnerable || target.state === "down") return;
+                const hitRange = this.state === "punch" ? 45 : 60;
                 const dist = Math.abs(this.x - target.x);
-                if (dist > 60) { this.vx = this.x < target.x ? 1.5 : -1.5; this.state = "walk"; }
-                else { this.vx = 0; if(Math.random() < 0.04) this.doAction(Math.random() > 0.5 ? "punch" : "kick", target); else this.state = "idle"; }
+                // 공격 프레임이 절정일 때만 판정
+                if (this.frame === 1 && dist < hitRange) {
+                    target.takeDamage(this.state === "punch" ? 8 : 12, this);
+                }
             }
 
-            doAction(type, target) {
-                if (this.state !== "idle" && this.state !== "walk") return;
-                this.state = type; this.frame = 0;
-                if (Math.abs(this.x - target.x) < 55) target.takeDamage(type === "ult" ? 30 : 10);
-            }
-
-            takeDamage(amt) {
-                this.hp = Math.max(0, this.hp - amt); this.isHit = true;
-                setTimeout(() => this.isHit = false, 200);
+            takeDamage(amt, attacker) {
+                this.hp = Math.max(0, this.hp - amt);
+                this.state = "hit";
+                this.frame = 0;
+                this.vx = attacker.facing * 4; // 넉백 물리 적용
                 document.getElementById(`${this.isPlayer ? "p1" : "p2"}-hp`).style.width = this.hp + "%";
+                setTimeout(() => { if(this.hp > 0) this.state = "idle"; else this.state = "down"; }, 300);
             }
 
             update(t, target) {
+                if (this.state === "down") { this.vx = 0; return; }
+
+                // 🛠️ 상태 전이 규칙 강화
                 if (this.isPlayer) {
-                    const isL = heldKeys.has("Left"); const isR = heldKeys.has("Right");
-                    if (!["punch", "kick", "ult"].includes(this.state)) {
-                        if (isL) { this.vx = -3.5; this.state = "walk"; }
+                    if (!["attack", "hit", "roll"].includes(this.state)) {
+                        const isL = heldKeys.has("Left"); const isR = heldKeys.has("Right");
+                        const isD = heldKeys.has("Down");
+                        
+                        if (isD && (isL || isR)) { this.state = "roll"; this.invulnerable = true; this.vx = (isL ? -6 : 6); }
+                        else if (isL) { this.vx = -3.5; this.state = "walk"; }
                         else if (isR) { this.vx = 3.5; this.state = "walk"; }
                         else { this.vx = 0; this.state = "idle"; }
+
                         if (heldKeys.has("Up") && this.y >= GROUND_Y) this.vy = -12;
                     }
-                } else this.updateAI(target);
+                } else {
+                    // AI 추격 및 거리 기반 공격
+                    const d = Math.abs(this.x - target.x);
+                    if (this.state === "idle" || this.state === "walk") {
+                        if (d > 60) { this.vx = this.x < target.x ? 2 : -2; this.state = "walk"; }
+                        else { this.vx = 0; if(Math.random() < 0.05) { this.state = Math.random() > 0.5 ? "punch" : "kick"; this.frame = 0; } }
+                    }
+                }
+
+                if (this.state === "attack") this.checkHit(target);
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
                 this.x = Math.max(20, Math.min(364, this.x));
-                this.facing = this.x < target.x ? 1 : -1;
+                if (this.state !== "roll") this.facing = this.x < target.x ? 1 : -1;
 
+                // 애니메이션 타이머
                 if (t - this.timer > 100) {
-                    this.frame = (this.frame + 1) % 2; this.timer = t;
-                    if (["punch", "kick", "ult"].includes(this.state) && this.frame === 0) this.state = "idle";
+                    this.frame = (this.frame + 1) % 2;
+                    this.timer = t;
+                    if (this.state === "roll") { this.invulnerable = false; this.state = "idle"; }
+                    if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
                 }
             }
 
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
-                // 🛠️ 이미지 실패 대비 텍스트/이모지 파이터 백업 로직 추가
-                if (this.isPlayer) {
-                    const idx = this.state === "punch" ? 5 : (this.state === "walk" ? this.frame+1 : 0);
-                    ctx.drawImage(SPRITES.p1[idx], -32, -64, 64, 64);
-                } else {
-                    ctx.drawImage(SPRITES.p2, -32, -64, 64, 64);
-                }
-                if (this.isHit) { ctx.filter = "brightness(3)"; ctx.translate(Math.random()*4-2, 0); }
+                
+                // 🛠️ 이미지 실패 시 폴백 렌더링 (그림만 붙인 게 아니라는 증거!)
+                ctx.fillStyle = this.state === "hit" ? "white" : (this.isPlayer ? "#00f3ff" : "#ffaa00");
+                if (this.state === "roll") ctx.globalAlpha = 0.5;
+                
+                // 캐릭터 본체 (박스 + 이모지)
+                ctx.fillRect(-15, -50, 30, 50);
+                ctx.fillStyle = "white"; ctx.font = "20px Arial"; ctx.textAlign = "center";
+                const emoji = this.state === "punch" ? "👊" : (this.state === "kick" ? "👟" : (this.state === "hit" ? "🤕" : "👤"));
+                ctx.fillText(emoji, 0, -20);
+                
                 ctx.restore();
             }
         }
@@ -159,37 +151,31 @@
         let p1, p2, active = false;
         function loop(t) {
             if (!active) return;
-            ctx.drawImage(SPRITES.bg, 0, 0, 384, 224);
+            ctx.fillStyle = "#101622"; ctx.fillRect(0, 0, 384, 224);
             p1.update(t, p2); p2.update(t, p1);
             p1.draw(); p2.draw();
             requestAnimationFrame(loop);
         }
 
-        // 🛠️ 버튼 조작 로직 (확실하게 연결)
+        document.getElementById("start-btn").onclick = () => {
+            document.getElementById("vs-intro").classList.add("opacity-0");
+            setTimeout(() => {
+                document.getElementById("vs-intro").remove();
+                document.getElementById("hud").classList.remove("hidden");
+                document.getElementById("controls").classList.remove("hidden");
+                p1 = new Fighter(80, "ZERO", true); p2 = new Fighter(300, "KAEL", false);
+                active = true; requestAnimationFrame(loop);
+            }, 600);
+        };
+
         const setup = (id, key) => {
             const el = document.getElementById(id);
             el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
             el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
         };
-
-        document.getElementById("start-btn").onclick = () => {
-            document.getElementById("vs-screen").classList.add("opacity-0");
-            setTimeout(() => {
-                document.getElementById("vs-screen").remove();
-                document.getElementById("hud").classList.remove("hidden");
-                document.getElementById("controls").classList.remove("hidden");
-                p1 = new Fighter(80, "ZERO", true); p2 = new Fighter(300, "KAEL", false);
-                setup("left", "Left"); setup("right", "Right"); setup("up", "Up");
-                document.getElementById("p-btn").onpointerdown = () => p1.doAction("punch", p2);
-                document.getElementById("k-btn").onpointerdown = () => p1.doAction("kick", p2);
-                document.getElementById("ult-btn").onpointerdown = () => {
-                    document.getElementById("ult-layer").style.display = "flex";
-                    setTimeout(() => document.getElementById("ult-layer").style.display = "none", 800);
-                    p1.doAction("ult", p2);
-                };
-                active = true; requestAnimationFrame(loop);
-            }, 600);
-        };
+        setup("ctrl-left", "Left"); setup("ctrl-right", "Right"); setup("ctrl-up", "Up"); setup("ctrl-down", "Down");
+        document.getElementById("btn-p").onpointerdown = () => { if(p1.state === "idle") { p1.state = "punch"; p1.frame = 0; } };
+        document.getElementById("btn-k").onpointerdown = () => { if(p1.state === "idle") { p1.state = "kick"; p1.frame = 0; } };
     </script>
 </body>
 </html>

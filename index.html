@@ -3,102 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STREET CODING FIGHTER v17.0</title>
+<title>STREET CODING FIGHTER v18.0</title>
 <style>
     canvas { image-rendering: pixelated; object-fit: contain; width: 100%; height: 100%; background: #000; }
     body { margin: 0; background: #000; overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; height: 100vh; }
     #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
-    #start-btn { padding: 20px 60px; font-size: 2rem; background: #ff4444; color: white; border: 4px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px #ff4444; }
+    #start-btn { padding: 20px 60px; font-size: 2rem; background: #ff4444; color: white; border: 4px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px #ff4444; font-weight: bold; }
     #controls { position: fixed; bottom: 30px; width: 100%; display: flex; justify-content: space-around; z-index: 500; pointer-events: none; }
-    .btn { width: 85px; height: 85px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.2rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .btn { width: 85px; height: 85px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.1rem; user-select: none; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 2.5rem; text-shadow: 0 0 20px red;">ORIGIN POINT ENGINE</h1>
-    <p>Part 4: Professional Animation Logic</p>
+    <h1 style="font-size: 2.5rem; text-shadow: 0 0 20px red;">STATE MACHINE ENGINE</h1>
+    <p>Part 5: Advanced Logic & Moveset</p>
     <button id="start-btn">FIGHT!</button>
 </div>
 
 <canvas id="game" width="384" height="224"></canvas>
 
 <div id="controls">
-    <div class="btn" id="left">◀</div>
-    <div class="btn" id="atk">ATK</div>
-    <div class="btn" id="right">▶</div>
+    <div class="btn" id="btn-jump">JUMP</div>
+    <div class="btn" id="btn-left">LEFT</div>
+    <div class="btn" id="btn-atk">ATK</div>
+    <div class="btn" id="btn-right">RIGHT</div>
+    <div class="btn" id="btn-crouch">CROUCH</div>
 </div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-const startBtn = document.getElementById("start-btn");
+const GROUND_Y = 190;
+const GRAVITY = 0.6; // 튜토리얼 5편의 중력 시스템
 
-// 튜토리얼 4편: 애니메이션 상태별 프레임 리스트
-const FRAME_DATA = {
-    p1: { idle: ["🧑‍💻", "👨‍💻"], attack: ["👊", "🤜", "✨"], hit: ["🤕", "😵"] },
-    p2: { idle: ["👾", "💀"], attack: ["💥", "🔥"], hit: ["😵", "🩸"] }
+// 튜토리얼 5편 기반: 애니메이션 및 프레임 데이터
+const ANIMS = {
+    idle: ["🧑‍💻", "👨‍💻"],
+    walk: ["🏃", "🚶", "🏃", "🚶"],
+    jump: ["🆙", "✈️", "🆙"],
+    crouch: ["🧘"],
+    attack: ["👊", "🤜"],
+    hit: ["🤕"]
 };
 
 class Fighter {
-    constructor(x, config) {
-        this.x = x; this.y = 190; // Stage Floor
-        this.vx = 0; this.hp = 100;
-        this.state = "idle";
-        this.config = config;
+    constructor(x, id) {
+        this.x = x; this.y = GROUND_Y;
+        this.vx = 0; this.vy = 0;
+        this.hp = 100;
+        this.id = id;
         this.frameIndex = 0;
-        this.animTimer = 0; // 애니메이션 속도 조절용
+        this.animTimer = 0;
+        
+        // 🛠️ 튜토리얼 5편의 핵심: 상태 머신 정의
+        this.currentState = "idle";
+        this.states = {
+            idle: { validFrom: ["walk", "jump", "crouch", "attack"], init: () => { this.vx = 0; this.vy = 0; } },
+            walk: { validFrom: ["idle"], init: (dir) => { this.vx = dir * 3; } },
+            jump: { validFrom: ["idle", "walk"], init: () => { this.vy = -12; } },
+            crouch: { validFrom: ["idle"], init: () => { this.vx = 0; } },
+            attack: { validFrom: ["idle", "walk"], init: () => { this.vx = 0; } }
+        };
     }
 
-    update(currentTime, opponent) {
-        if (this.hp <= 0) return;
-        this.x += this.vx;
-        this.x = Math.max(30, Math.min(354, this.x));
+    // 상태 전환 함수 (무결성 검사 포함)
+    changeState(newState, arg) {
+        if (this.currentState === newState) return;
+        if (!this.states[newState].validFrom.includes(this.currentState)) return;
 
-        // 튜토리얼 4편: 시간 기반 프레임 업데이트 (약 100ms마다)
-        if (currentTime - this.animTimer > 100) {
-            this.frameIndex = (this.frameIndex + 1) % FRAME_DATA[this.config][this.state].length;
-            this.animTimer = currentTime;
-            
-            // 공격 애니메이션 종료 시 idle 복귀
-            if (this.state === "attack" && this.frameIndex === 0) this.state = "idle";
-            // 히트 애니메이션 종료 시 idle 복귀
-            if (this.state === "hit" && this.frameIndex === 0) this.state = "idle";
+        this.currentState = newState;
+        this.frameIndex = 0;
+        this.states[newState].init(arg);
+    }
+
+    update(time, opponent) {
+        // 물리 연산 (중력)
+        this.vy += GRAVITY;
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // 지면 충돌 처리
+        if (this.y >= GROUND_Y) {
+            this.y = GROUND_Y;
+            this.vy = 0;
+            if (this.currentState === "jump") this.changeState("idle");
         }
 
-        // 충돌 로직
-        if (this.state === "attack" && this.frameIndex === 1) {
-            const dist = Math.abs(this.x - opponent.x);
-            if (dist < 50 && opponent.state !== "hit") {
-                opponent.hp -= 10; opponent.state = "hit";
-                opponent.frameIndex = 0; // 히트 즉시 첫 프레임
-            }
+        // 애니메이션 프레임 업데이트
+        if (time - this.animTimer > 100) {
+            this.frameIndex = (this.frameIndex + 1) % ANIMS[this.currentState].length;
+            this.animTimer = time;
+            
+            // 공격 종료 시 복귀
+            if (this.currentState === "attack" && this.frameIndex === 0) this.changeState("idle");
         }
     }
 
     draw() {
         ctx.save();
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom"; // 튜토리얼의 '오리진 포인트(바닥)' 개념 적용
+        ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+        ctx.font = this.currentState === "crouch" ? "40px Arial" : "60px Arial";
         
-        ctx.font = "60px Arial";
-        const currentEmoji = FRAME_DATA[this.config][this.state][this.frameIndex];
-        
-        // 피격 시 번쩍임 효과
-        if (this.state === "hit") ctx.filter = "brightness(2) contrast(1.5)";
-        
-        ctx.fillText(currentEmoji, this.x, this.y);
+        const emoji = ANIMS[this.currentState][this.frameIndex];
+        ctx.fillText(emoji, this.x, this.y);
         
         // HP 바
-        ctx.filter = "none";
         ctx.fillStyle = "#ff4444"; ctx.fillRect(this.x - 20, this.y - 70, 40, 4);
         ctx.fillStyle = "#39ff14"; ctx.fillRect(this.x - 20, this.y - 70, (this.hp/100)*40, 4);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(100, "p1");
-const p2 = new Fighter(280, "p2");
+const p1 = new Fighter(100, "P1");
+const p2 = new Fighter(280, "P2");
 
 function loop(timestamp) {
     const sky = ctx.createLinearGradient(0, 0, 0, 224);
@@ -108,29 +126,25 @@ function loop(timestamp) {
 
     p1.update(timestamp, p2); p2.update(timestamp, p1);
     p1.draw(); p2.draw();
-    
-    if (p1.hp > 0 && p2.hp > 0) requestAnimationFrame(loop);
-    else {
-        ctx.fillStyle = "white"; ctx.font = "30px Courier";
-        ctx.fillText("GAME OVER", 192, 112);
-    }
+    requestAnimationFrame(loop);
 }
 
-// 🛠️ 버튼 조작 로직
+// 🛠️ 버튼 조작 로직 (상태 머신 연결)
 function bind(id, down, up) {
     const el = document.getElementById(id);
-    const start = 'ontouchstart' in window ? 'touchstart' : 'mousedown';
-    const end = 'ontouchend' in window ? 'touchend' : 'mouseup';
-    el.addEventListener(start, (e) => { e.preventDefault(); down(); }, {passive: false});
-    el.addEventListener(end, (e) => { e.preventDefault(); up(); }, {passive: false});
+    el.addEventListener('touchstart', (e) => { e.preventDefault(); down(); }, {passive: false});
+    el.addEventListener('touchend', (e) => { e.preventDefault(); up(); }, {passive: false});
+    el.addEventListener('mousedown', down);
+    el.addEventListener('mouseup', up);
 }
 
-bind("left", () => p1.vx = -3, () => p1.vx = 0);
-bind("right", () => p1.vx = 3, () => p1.vx = 0);
-bind("atk", () => { if (p1.state === "idle") { p1.state = "attack"; p1.frameIndex = 0; } }, () => {});
+bind("btn-left", () => p1.changeState("walk", -1), () => p1.changeState("idle"));
+bind("btn-right", () => p1.changeState("walk", 1), () => p1.changeState("idle"));
+bind("btn-jump", () => p1.changeState("jump"), () => {});
+bind("btn-crouch", () => p1.changeState("crouch"), () => p1.changeState("idle"));
+bind("btn-atk", () => p1.changeState("attack"), () => {});
 
-startBtn.addEventListener("click", () => { document.getElementById("overlay").remove(); requestAnimationFrame(loop); });
-startBtn.addEventListener("touchstart", (e) => { e.preventDefault(); document.getElementById("overlay").remove(); requestAnimationFrame(loop); });
+document.getElementById("start-btn").onclick = () => { document.getElementById("overlay").remove(); requestAnimationFrame(loop); };
 </script>
 </body>
 </html>

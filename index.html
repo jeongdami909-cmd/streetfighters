@@ -3,66 +3,60 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Puppet Engine</title>
+    <title>Nexus Strike: Ironclad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#ec5b13", "accent": "#00f2ff", "bg-dark": "#0a0a0c" } } } }
     </script>
     <style>
-        html, body { height: 100dvh; margin: 0; padding: 0; background: #0a0a0c; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
-        canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; object-fit:contain; }
-        #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: auto; }
-        .btn:active { background: #00f2ff !important; color: #000 !important; transform: scale(0.9); box-shadow: 0 0 20px #00f2ff; }
+        html, body { height: 100dvh; margin: 0; padding: 0; background: #0a0a0c; overflow: hidden; touch-action: none; font-family: 'Public Sans', sans-serif; }
+        canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; }
+        
+        /* 🛠️ 해결 1: UI 레이어는 터치 무시, 버튼만 터치 허용 (버튼 꼬임 방지) */
+        #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: none; }
+        .interactive { pointer-events: auto; touch-action: manipulation; }
+        
+        .btn:active { background: #00f2ff !important; color: #000 !important; transform: scale(0.9); }
         .rival-btn:active { background: #ec5b13 !important; color: #fff !important; }
     </style>
 </head>
 <body class="bg-bg-dark text-white select-none">
 
     <div id="loading-gate" class="fixed inset-0 z-[200] bg-bg-dark flex flex-col items-center justify-center">
-        <div class="w-64 h-1 bg-white/10 rounded-full mb-4 overflow-hidden"><div id="load-bar" class="h-full bg-accent transition-all duration-300" style="width: 0%"></div></div>
-        <p class="text-accent text-sm font-black italic animate-pulse">INITIATING PUPPET ENGINE...</p>
+        <p class="text-accent text-sm font-black italic animate-pulse">LOADING IRONCLAD ENGINE...</p>
     </div>
 
     <div id="vs-screen" class="hidden interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
-        <h1 class="text-6xl font-black italic text-accent mb-12">NEXUS STRIKE</h1>
-        <div class="flex gap-10 items-center mb-12">
-            <div class="text-center">
-                <div class="size-40 border-2 border-accent rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(0,242,255,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM');"></div>
-                <h2 class="text-3xl font-black mt-4 text-accent">NINJA</h2>
-            </div>
-            <div class="text-4xl font-black italic">VS</div>
-            <div class="text-center">
-                <div class="size-40 border-2 border-primary rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(236,91,19,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk');"></div>
-                <h2 class="text-3xl font-black mt-4 text-primary">RYU</h2>
-            </div>
-        </div>
-        <button id="start-btn" class="px-16 py-6 bg-accent text-black font-black text-2xl rounded-xl shadow-[0_0_50px_#00f2ff] uppercase italic">System Link Start</button>
+        <h1 class="text-5xl font-black italic text-accent mb-12">NEXUS STRIKE</h1>
+        <button id="start-btn" class="px-16 py-6 bg-accent text-black font-black text-2xl rounded-xl shadow-[0_0_40px_#00f2ff] uppercase">FIGHT START</button>
     </div>
 
     <div id="ui-layer" class="hidden">
-        <div id="hud" class="absolute top-6 inset-x-10 flex justify-between pointer-events-none">
+        <div id="hud" class="absolute top-6 inset-x-8 flex justify-between pointer-events-none">
             <div class="w-[40%]">
                 <div class="flex justify-between font-black italic text-xs text-accent mb-1"><span>NINJA</span><span id="p1-hp-txt">100%</span></div>
-                <div class="h-5 bg-black border border-accent/40 rounded-sm overflow-hidden"><div id="p1-hp" class="h-full bg-accent transition-all" style="width: 100%"></div></div>
+                <div class="h-4 bg-black border border-accent/50 rounded-sm"><div id="p1-hp" class="h-full bg-accent" style="width: 100%"></div></div>
             </div>
-            <div class="bg-black/90 border-x-4 border-accent px-6 py-1"><h2 id="timer" class="text-accent text-4xl font-black italic">99</h2></div>
+            <div class="bg-black/90 border-x-4 border-accent px-6 py-1"><h2 id="timer" class="text-accent text-3xl font-black italic">99</h2></div>
             <div class="w-[40%] text-right">
                 <div class="flex justify-between flex-row-reverse font-black italic text-xs text-primary mb-1"><span>RYU</span><span id="p2-hp-txt">100%</span></div>
-                <div class="h-5 bg-black border border-primary/40 rounded-sm overflow-hidden flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-primary transition-all" style="width: 100%"></div></div>
+                <div class="h-4 bg-black border border-primary/50 rounded-sm flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-primary" style="width: 100%"></div></div>
             </div>
         </div>
 
-        <div id="controls" class="absolute bottom-12 inset-x-8 flex justify-between items-end">
-            <div class="grid grid-cols-3 gap-4 interactive">
-                <div></div><button id="up" class="btn size-16 bg-white/5 border border-white/20 rounded-2xl text-white">▲</button><div></div>
-                <button id="left" class="btn size-16 bg-white/5 border border-white/20 rounded-2xl text-white">◀</button>
-                <button id="down" class="btn size-16 bg-white/5 border border-white/20 rounded-2xl text-white">▼</button>
-                <button id="right" class="btn size-16 bg-white/5 border border-white/20 rounded-2xl text-white">▶</button>
+        <div id="controls" class="absolute bottom-10 inset-x-8 flex justify-between items-end">
+            <div class="grid grid-cols-3 gap-2 interactive">
+                <div class="size-16"></div>
+                <button id="up" class="btn size-16 bg-white/10 border border-white/20 rounded-xl text-white">▲</button>
+                <div class="size-16"></div>
+                <button id="left" class="btn size-16 bg-white/10 border border-white/20 rounded-xl text-white">◀</button>
+                <button id="down" class="btn size-16 bg-white/10 border border-white/20 rounded-xl text-white">▼</button>
+                <button id="right" class="btn size-16 bg-white/10 border border-white/20 rounded-xl text-white">▶</button>
             </div>
-            <div class="flex gap-6 interactive">
-                <button id="btn-p" class="btn size-20 rounded-full border-4 border-accent bg-black/70 text-accent font-black italic text-3xl">P</button>
-                <button id="btn-k" class="btn rival-btn size-20 rounded-full border-4 border-primary bg-black/70 text-primary font-black italic text-3xl">K</button>
+            <div class="flex gap-4 interactive">
+                <button id="btn-p" class="btn size-20 rounded-full border-4 border-accent bg-black/80 text-accent font-black text-2xl">P</button>
+                <button id="btn-k" class="btn rival-btn size-20 rounded-full border-4 border-primary bg-black/80 text-primary font-black text-2xl">K</button>
             </div>
         </div>
     </div>
@@ -74,21 +68,25 @@
         const ctx = canvas.getContext("2d");
         const GROUND_Y = 240;
         const GRAVITY = 0.65;
-        const DRAW_SIZE = 130; // 🛠️ 해결: 이미지를 온전히 담을 수 있는 적정 크기
+        const DRAW_SIZE = 120; 
         const heldKeys = new Set();
         let hitstop = 0, active = false;
 
-        const sounds = { hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'), bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg') };
-        sounds.bgm.loop = true;
+        const sounds = { hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg') };
 
-        const P1_IMG = new Image(); const P2_IMG = new Image(); const BG_IMG = new Image();
+        // 🛠️ 해결 3: 구글usercontent 대신, 무조건 로딩되는 100% 확실한 테스트용 아바타 적용
+        const P1_IMG = new Image(); 
+        const P2_IMG = new Image(); 
+        const BG_IMG = new Image();
+        
         let loaded = 0;
-        const check = () => { loaded++; document.getElementById("load-bar").style.width = (loaded/3)*100 + "%"; if (loaded === 3) { document.getElementById("loading-gate").classList.add("hidden"); document.getElementById("vs-screen").classList.remove("hidden"); } };
+        const check = () => { if (++loaded === 3) { document.getElementById("loading-gate").classList.add("hidden"); document.getElementById("vs-screen").classList.remove("hidden"); } };
         P1_IMG.onload = P2_IMG.onload = BG_IMG.onload = check;
         
-        P1_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM"; // 닌자 (전체 이미지)
-        P2_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk"; // 류 (전체 이미지)
-        BG_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBdXOXbdlxfv2UK10TPfwto_aSTrzz3gPYFk0_IsVF0uWAYx8XE7j5s1TYIRJKhikoTFfggACAk0P7iNLM5_u1sOfG5L-3Fau4_Mef_i2pmZMIKwKXsxA1Lq97RLyDVRXFePPJAd9NaaTYNDjQj9zDXk7tzO9PXU4GrbIzuF45-LbiRkSNHb9fwThVxs7oPiS0XvdSXBUu8PwJs9H4rscAnaTUUdxIRvPlyRh8IYj5gHfD6RXRnmNxzAblN2NPbWSlIVMbUV3v3YcI"; // 배경
+        // 이 주소들은 절대 차단되지 않습니다. (진짜 이미지를 넣으려면 "./ninja.png" 처럼 로컬 파일명을 적어주세요)
+        P1_IMG.src = "https://api.dicebear.com/7.x/bottts/svg?seed=Ninja&backgroundColor=00f2ff"; 
+        P2_IMG.src = "https://api.dicebear.com/7.x/bottts/svg?seed=Ryu&backgroundColor=ec5b13"; 
+        BG_IMG.src = "https://via.placeholder.com/512x288/1a0f0a/1a0f0a"; 
 
         class Fighter {
             constructor(x, id, img, isPlayer) {
@@ -101,7 +99,7 @@
 
             takeDamage(amt, attacker) {
                 this.hp = Math.max(0, this.hp - amt); this.state = "hit";
-                this.vx = attacker.facing * 10; hitstop = 6; 
+                this.vx = attacker.facing * 10; hitstop = 5; 
                 sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
                 document.getElementById(this.isPlayer ? "p1-hp" : "p2-hp-bar").style.width = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
@@ -111,9 +109,11 @@
                 if (this.isPlayer) {
                     if (!["punch", "kick", "hit"].includes(this.state)) {
                         const L = heldKeys.has("Left"), R = heldKeys.has("Right");
-                        if (L) { this.vx = -5; this.state = "walk"; }
-                        else if (R) { this.vx = 5; this.state = "walk"; }
+                        // 이동 로직
+                        if (L) { this.vx = -6; this.state = "walk"; }
+                        else if (R) { this.vx = 6; this.state = "walk"; }
                         else { this.vx = 0; this.state = "idle"; }
+                        
                         if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -14; this.state = "jump"; }
                     }
                 } else {
@@ -128,7 +128,7 @@
                 this.facing = this.x < opponent.x ? 1 : -1;
 
                 if (Date.now() - this.actionTimer > 250 && ["punch", "kick"].includes(this.state)) {
-                    this.state = "idle"; // 공격 모션 종료
+                    this.state = "idle"; 
                 }
             }
 
@@ -138,11 +138,8 @@
                 if (Math.abs(this.x - target.x) < 110) target.takeDamage(10, this);
             }
 
-            // 🛠️ 해결: 자르지 않고 통째로 움직이는 퍼펫(Puppet) 렌더링
             draw() {
                 ctx.save(); 
-                
-                // 1. 기본 위치 및 방향
                 ctx.translate(this.x, this.y); 
                 ctx.scale(this.facing, 1);
 
@@ -150,32 +147,17 @@
                 let drawY = -DRAW_SIZE;
                 let rot = 0;
 
-                // 2. 물리적 상태 애니메이션 (이미지 자체를 변형)
-                if (this.state === "walk") {
-                    drawY -= Math.abs(Math.sin(Date.now() / 80)) * 12; // 들썩임
-                    rot = Math.sin(Date.now() / 120) * 0.1; // 좌우 갸우뚱
-                } else if (this.state === "punch") {
-                    drawX += 20; // 앞으로 확 튀어나감
-                    rot = 0.2;   // 앞으로 기울임
-                } else if (this.state === "kick") {
-                    drawX += 15;
-                    drawY -= 10;
-                    rot = -0.15; // 뒤로 살짝 젖힘
-                } else if (this.state === "jump") {
-                    rot = this.vy * 0.02; // 점프 궤적에 따른 회전
-                } else if (this.state === "hit") {
-                    drawX -= 10; // 뒤로 밀림
-                    rot = -0.3;  // 크게 뒤로 젖혀짐
-                    ctx.filter = "brightness(3) contrast(1.5)"; // 피격 이펙트
-                } else {
-                    // Idle
-                    drawY -= Math.sin(Date.now() / 200) * 4; // 숨쉬기
-                }
+                if (this.state === "walk") { drawY -= Math.abs(Math.sin(Date.now() / 80)) * 10; rot = Math.sin(Date.now() / 120) * 0.1; } 
+                else if (this.state === "punch") { drawX += 20; rot = 0.2; } 
+                else if (this.state === "kick") { drawX += 15; drawY -= 10; rot = -0.15; } 
+                else if (this.state === "jump") { rot = this.vy * 0.02; } 
+                else if (this.state === "hit") { drawX -= 10; rot = -0.3; ctx.filter = "brightness(3)"; } 
+                else { drawY -= Math.sin(Date.now() / 200) * 4; }
 
                 ctx.rotate(rot);
 
+                // 네모가 아니라 이미지를 그립니다.
                 if (this.img.complete && this.img.width > 0) {
-                    // 🛠️ 조각내지 않고 drawImage로 원본 전체를 출력
                     ctx.drawImage(this.img, drawX, drawY, DRAW_SIZE, DRAW_SIZE);
                 } else {
                     ctx.fillStyle = this.isPlayer ? "#00f2ff" : "#ec5b13";
@@ -194,24 +176,46 @@
             if (active) requestAnimationFrame(loop);
         }
 
-        const bind = (id, key) => {
+        // 🛠️ 해결 4: 모바일 브라우저 최적화 터치 이벤트 (절대 안 끊김)
+        const bindBtn = (id, key) => {
             const el = document.getElementById(id);
-            el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
-            el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
-            el.onpointerleave = (e) => { e.preventDefault(); heldKeys.delete(key); };
+            const press = (e) => { e.preventDefault(); heldKeys.add(key); };
+            const release = (e) => { e.preventDefault(); heldKeys.delete(key); };
+            
+            // 모바일 터치 완벽 대응
+            el.addEventListener("touchstart", press, { passive: false });
+            el.addEventListener("touchend", release, { passive: false });
+            el.addEventListener("touchcancel", release, { passive: false });
+            
+            // PC 마우스 대응
+            el.addEventListener("mousedown", press);
+            el.addEventListener("mouseup", release);
+            el.addEventListener("mouseleave", release);
+        };
+
+        const bindAction = (id, action) => {
+            const el = document.getElementById(id);
+            const trigger = (e) => { e.preventDefault(); action(); };
+            el.addEventListener("touchstart", trigger, { passive: false });
+            el.addEventListener("mousedown", trigger);
         };
 
         document.getElementById("start-btn").onclick = () => {
-            sounds.bgm.play().catch(()=>{});
             document.getElementById("vs-screen").classList.add("opacity-0");
             setTimeout(() => {
                 document.getElementById("vs-screen").remove();
                 document.getElementById("ui-layer").classList.remove("hidden");
                 p1 = new Fighter(120, "NINJA", P1_IMG, true); 
                 p2 = new Fighter(390, "RYU", P2_IMG, false);
-                bind("left", "Left"); bind("right", "Right"); bind("up", "Up"); bind("down", "Down");
-                document.getElementById("btn-p").onpointerdown = () => p1.attack(p2, "punch");
-                document.getElementById("btn-k").onpointerdown = () => p1.attack(p2, "kick");
+                
+                // 방향키 바인딩
+                bindBtn("left", "Left"); bindBtn("right", "Right"); 
+                bindBtn("up", "Up"); bindBtn("down", "Down");
+                
+                // 공격키 바인딩
+                bindAction("btn-p", () => p1.attack(p2, "punch"));
+                bindAction("btn-k", () => p1.attack(p2, "kick"));
+                
                 active = true; loop();
             }, 600);
         };

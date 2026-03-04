@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Dragon's Roar</title>
+    <title>Nexus Strike: Final Deployment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
@@ -19,23 +19,8 @@
 </head>
 <body class="bg-bg-dark text-white select-none">
 
-    <div id="loading-gate" class="fixed inset-0 z-[200] bg-bg-dark flex flex-col items-center justify-center">
-        <p class="text-accent text-xl font-black italic animate-pulse uppercase">Syncing Dragon Spirit...</p>
-    </div>
-
-    <div id="vs-screen" class="hidden interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
+    <div id="vs-screen" class="interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
         <h1 class="text-5xl font-black italic text-white mb-12">NEXUS STRIKE</h1>
-        <div class="flex gap-10 items-center mb-12">
-            <div class="text-center">
-                <div class="size-40 border-2 border-accent rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(0,242,255,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM');"></div>
-                <h2 class="text-3xl font-black mt-4 text-accent">NINJA</h2>
-            </div>
-            <div class="text-4xl font-black italic text-gray-500">VS</div>
-            <div class="text-center">
-                <div class="size-40 border-2 border-primary rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(255,0,127,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA3zca7hvTLbLxDRhFxSGls-9so22b2Vcd6qNgq7E6x70DSkDL59jt9QvV8-GHL4KUL8SxcFlH_4hkysCplf_mYGhu9EJsIa6sUDtSKfn6Lxa5xJBiIhm1zyE4lnfJckBIMFaPLwQG37NH9KmXufZzVB5bpKkxTRqQ16OnXp9DFn06F3jcXEksOTBpVmS81cCKxt0qfEgMeveGiXQkR-vN4AK834nWP72o48fGvep0h8aYYgpJ_xV76PpwHk657TDEY-F1U9m3MU3U');"></div>
-                <h2 class="text-3xl font-black mt-4 text-primary">DRAGON</h2>
-            </div>
-        </div>
         <button id="start-btn" class="px-16 py-6 bg-accent text-black font-black text-2xl rounded-xl shadow-[0_0_50px_#00f2ff] uppercase italic">FIGHT START</button>
     </div>
 
@@ -53,15 +38,15 @@
         </div>
 
         <div id="controls" class="absolute bottom-8 inset-x-8 flex justify-between items-end">
-            <div class="grid grid-cols-3 gap-4 interactive">
-                <div></div><button id="up" class="btn w-16 h-16 bg-white/10 border border-white/20 rounded-2xl text-white text-2xl">▲</button><div></div>
-                <button id="left" class="btn w-16 h-16 bg-white/10 border border-white/20 rounded-2xl text-white text-2xl">◀</button>
-                <button id="down" class="btn w-16 h-16 bg-white/10 border border-white/20 rounded-2xl text-white text-2xl">▼</button>
-                <button id="right" class="btn w-16 h-16 bg-white/10 border border-white/20 rounded-2xl text-white text-2xl">▶</button>
+            <div class="relative w-36 h-36 interactive">
+                <button id="up" class="absolute top-0 left-1/2 -translate-x-1/2 btn w-14 h-14 bg-white/10 border border-white/20 rounded-xl text-white text-xl z-10">▲</button>
+                <button id="left" class="absolute left-0 top-1/2 -translate-y-1/2 btn w-14 h-14 bg-white/10 border border-white/20 rounded-xl text-white text-xl z-10">◀</button>
+                <button id="right" class="absolute right-0 top-1/2 -translate-y-1/2 btn w-14 h-14 bg-white/10 border border-white/20 rounded-xl text-white text-xl z-10">▶</button>
+                <button id="down" class="absolute bottom-0 left-1/2 -translate-x-1/2 btn w-14 h-14 bg-white/10 border border-white/20 rounded-xl text-white text-xl z-10">▼</button>
             </div>
             <div class="flex gap-6 interactive">
-                <button id="btn-p" class="btn w-24 h-24 rounded-full border-4 border-accent bg-black/80 text-accent font-black text-4xl shadow-[0_0_20px_rgba(0,242,255,0.4)]">P</button>
-                <button id="btn-k" class="btn w-24 h-24 rounded-full border-4 border-primary bg-black/80 text-primary font-black text-4xl shadow-[0_0_20px_rgba(255,0,127,0.4)]">K</button>
+                <button id="btn-p" class="btn w-20 h-20 rounded-full border-4 border-accent bg-black/80 text-accent font-black text-3xl shadow-[0_0_20px_rgba(0,242,255,0.4)]">P</button>
+                <button id="btn-k" class="btn w-20 h-20 rounded-full border-4 border-primary bg-black/80 text-primary font-black text-3xl shadow-[0_0_20px_rgba(255,0,127,0.4)]">K</button>
             </div>
         </div>
     </div>
@@ -78,32 +63,16 @@
 
         const heldKeys = new Set();
         let hitstop = 0, active = false;
-        const sounds = { hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg') };
 
-        const P1_IMG = new Image(); const P2_IMG = new Image(); const BG_IMG = new Image();
-        
-        // 🛠️ 무한 로딩 강제 돌파 Failsafe
-        let isBooted = false;
-        const bootGame = () => {
-            if(isBooted) return;
-            isBooted = true;
-            document.getElementById("loading-gate").classList.add("hidden");
-            document.getElementById("vs-screen").classList.remove("hidden");
-        };
+        const P1_IMG = new Image(); 
+        const P2_IMG = new Image(); 
+        const BG_IMG = new Image();
 
-        let loaded = 0;
-        const tick = () => { if (++loaded === 3) bootGame(); };
-        P1_IMG.onload = P1_IMG.onerror = tick;
-        P2_IMG.onload = P2_IMG.onerror = tick;
-        BG_IMG.onload = BG_IMG.onerror = tick;
-        setTimeout(bootGame, 1500); // 1.5초 뒤 무조건 켜짐
+        // 🚨 지피티의 완벽한 조언 적용: 로컬 파일 경로 사용! 🚨
+        P1_IMG.src = "ninja.png"; 
+        P2_IMG.src = "dragon.png"; 
+        BG_IMG.src = "background.png"; 
 
-        // 🛠️ 진짜 스프라이트 시트 연결!
-        P1_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM"; // 사이버 닌자
-        P2_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuA3zca7hvTLbLxDRhFxSGls-9so22b2Vcd6qNgq7E6x70DSkDL59jt9QvV8-GHL4KUL8SxcFlH_4hkysCplf_mYGhu9EJsIa6sUDtSKfn6Lxa5xJBiIhm1zyE4lnfJckBIMFaPLwQG37NH9KmXufZzVB5bpKkxTRqQ16OnXp9DFn06F3jcXEksOTBpVmS81cCKxt0qfEgMeveGiXQkR-vN4AK834nWP72o48fGvep0h8aYYgpJ_xV76PpwHk657TDEY-F1U9m3MU3U"; // 드래곤 스피릿
-        BG_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBdXOXbdlxfv2UK10TPfwto_aSTrzz3gPYFk0_IsVF0uWAYx8XE7j5s1TYIRJKhikoTFfggACAk0P7iNLM5_u1sOfG5L-3Fau4_Mef_i2pmZMIKwKXsxA1Lq97RLyDVRXFePPJAd9NaaTYNDjQj9zDXk7tzO9PXU4GrbIzuF45-LbiRkSNHb9fwThVxs7oPiS0XvdSXBUu8PwJs9H4rscAnaTUUdxIRvPlyRh8IYj5gHfD6RXRnmNxzAblN2NPbWSlIVMbUV3v3YcI"; // 배경
-
-        // 10프레임 액션 매핑
         const FRAME_COUNTS = { idle: 10, walk: 10, jump: 10, punch: 10, kick: 10, roll: 10, hit: 4 };
         const ANIMS = { idle: 0, walk: 1, jump: 2, punch: 3, kick: 4, roll: 5, hit: 0 };
 
@@ -119,7 +88,6 @@
             takeDamage(amt, attacker) {
                 this.hp = Math.max(0, this.hp - amt); this.state = "hit";
                 this.vx = attacker.facing * 12; hitstop = 6; 
-                sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
                 document.getElementById(this.isPlayer ? "p1-hp" : "p2-hp-bar").style.width = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
             }
@@ -145,7 +113,6 @@
                 this.x = Math.max(30, Math.min(482, this.x));
                 if(this.state !== "roll") this.facing = this.x < opponent.x ? 1 : -1;
 
-                // 🛠️ 10프레임 애니메이션 루프 적용
                 if (Date.now() - this.timer > 70) {
                     this.frame = (this.frame + 1) % FRAME_COUNTS[this.state];
                     this.timer = Date.now();
@@ -166,24 +133,21 @@
 
                 if (this.state === "hit") ctx.filter = "brightness(4)";
 
-                // 🛠️ 512x512 시트 정밀 슬라이싱 렌더링
-                if (this.img.complete && this.img.width > 0 && this.img.src !== window.location.href) {
-                    const sw = this.img.width / 10; // 10 Frames per row
-                    const sh = this.img.height / 8; // 8 Rows estimation
+                // 파일이 정상적으로 로드되었을 때만 그리기
+                if (this.img.complete && this.img.width > 0) {
+                    const sw = this.img.width / 10;
+                    const sh = this.img.height / 8;
                     const sy = ANIMS[this.state] * sh;
                     const sx = this.frame * sw;
-                    
-                    // 전신 비율로 화면에 뿌리기
                     ctx.drawImage(this.img, sx, sy, sw, sh, -CHAR_WIDTH/2, -CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
                 } else {
-                    // 폴백 모드 (이미지 깨짐 대비 휴머노이드)
+                    // 파일이 없거나 이름을 잘못 적었을 때 나오는 경고창
                     ctx.fillStyle = this.isPlayer ? "#00f2ff" : "#ff007f";
-                    ctx.beginPath(); ctx.arc(0, -140, 20, 0, Math.PI*2); ctx.fill(); 
-                    ctx.fillRect(-15, -120, 30, 60); 
-                    if(this.state==="walk"){ ctx.fillRect(-10, -60, 8, 60); ctx.fillRect(5, -60, 8, 60); }
-                    else { ctx.fillRect(-8, -60, 16, 60); }
-                    if(this.state==="punch"){ ctx.fillRect(0, -110, 50, 12); }
-                    else { ctx.fillRect(-5, -110, 10, 40); }
+                    ctx.font = "bold 14px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText(this.isPlayer ? "ninja.png" : "dragon.png", 0, -150);
+                    ctx.fillText("파일 없음!", 0, -130);
+                    ctx.fillRect(-20, -120, 40, 80); 
                 }
                 ctx.restore();
             }
@@ -193,8 +157,7 @@
         function loop() {
             if (hitstop > 0) { hitstop--; requestAnimationFrame(loop); return; }
             ctx.fillStyle = "#0a0a0c"; ctx.fillRect(0, 0, 512, 288); 
-            if (BG_IMG.complete && BG_IMG.width > 0 && BG_IMG.src !== window.location.href) ctx.drawImage(BG_IMG, 0, 0, 512, 288);
-            
+            if (BG_IMG.complete && BG_IMG.width > 0) { ctx.drawImage(BG_IMG, 0, 0, 512, 288); }
             p1.update(p2); p2.update(p1);
             p1.draw(); p2.draw();
             if (active) requestAnimationFrame(loop);
@@ -207,15 +170,11 @@
             el.addEventListener("touchstart", press, { passive: false });
             el.addEventListener("touchend", release, { passive: false });
             el.addEventListener("touchcancel", release, { passive: false });
-            el.addEventListener("mousedown", press);
-            el.addEventListener("mouseup", release);
-            el.addEventListener("mouseleave", release);
         };
         const bindAction = (id, action) => {
             const el = document.getElementById(id);
             const trigger = (e) => { e.preventDefault(); action(); };
             el.addEventListener("touchstart", trigger, { passive: false });
-            el.addEventListener("mousedown", trigger);
         };
 
         document.getElementById("start-btn").onclick = () => {

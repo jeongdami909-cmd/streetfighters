@@ -3,86 +3,80 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-    <title>Nexus Strike: Neon Fury</title>
+    <title>Nexus Strike: PRO HUD</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400" rel="stylesheet"/>
     <script>
         tailwind.config = {
             darkMode: "class",
-            theme: { extend: { colors: { "primary": "#258cf4", "secondary": "#ff00ff", "background-dark": "#101922" }, fontFamily: { "display": ["Space Grotesk"] } } }
+            theme: { extend: { colors: { "primary": "#ec5b13", "neon-blue": "#00f3ff", "neon-amber": "#ffaa00", "background-dark": "#101622" }, fontFamily: { "display": ["Public Sans"] } } }
         }
     </script>
     <style>
-        body { background: #101922; overflow: hidden; touch-action: none; font-family: 'Space Grotesk', sans-serif; }
+        body { background: #101622; overflow: hidden; touch-action: none; font-family: 'Public Sans', sans-serif; }
         canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; }
-        .pixelated { image-rendering: pixelated; }
-        /* 페이드 효과용 */
-        .scene { transition: opacity 0.5s ease-in-out; }
-        .hidden { display: none !important; opacity: 0; }
+        .cyber-grid { background-image: linear-gradient(rgba(236, 91, 19, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 91, 19, 0.05) 1px, transparent 1px); background-size: 40px 40px; }
+        .scanline { background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 50%); background-size: 100% 4px; pointer-events: none; }
+        .clip-slant { clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%); }
+        .clip-slant-rev { clip-path: polygon(5% 0, 100% 0, 100% 100%, 0% 100%); }
     </style>
 </head>
-<body class="text-slate-100 antialiased">
+<body class="bg-background-dark text-white select-none">
 
-    <div id="select-screen" class="scene fixed inset-0 z-[100] bg-background-dark flex flex-col overflow-y-auto">
-        <header class="flex items-center p-4 border-b border-primary/20">
-            <div class="flex-1 text-center"><h1 class="text-xl font-bold uppercase italic text-primary">Nexus Strike: Neon Fury</h1></div>
-        </header>
-        <main class="flex-1 p-4 lg:p-8 flex flex-col items-center gap-6 max-w-7xl mx-auto w-full">
-            <div class="flex flex-col lg:flex-row gap-8 items-start w-full">
-                <div class="w-full lg:w-1/2 flex flex-col gap-6">
-                    <div class="relative rounded-xl border-2 border-primary overflow-hidden shadow-[0_0_20px_rgba(37,140,244,0.3)]">
-                        <div id="hero-img" class="aspect-[4/5] bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1');"></div>
-                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-background-dark to-transparent">
-                            <h2 id="hero-name" class="text-5xl font-bold uppercase italic text-white">KAI</h2>
-                            <p class="text-primary font-medium">THE NEON FIST</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="w-full lg:w-1/2 flex flex-col gap-6">
-                    <h3 class="text-xl font-bold uppercase">Select Character</h3>
-                    <div class="grid grid-cols-4 gap-3">
-                        <div class="aspect-square rounded-lg border-2 border-primary bg-primary/20 p-1 cursor-pointer" onclick="selectHero('KAI')">
-                            <div class="w-full h-full rounded bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBV2EGrt7dffIdMuyKwKH9RvzV3ifY-GDzWxbZD4-MddcDKa0DzK_5O4_d797Mik3DHE1Pwq-j-pLhGzdFyykkQXH9eXwIyKncvAOXbLBqeJ7HiGwbLKCJ93TKXVT-2vg2hgF9efi2gCCEOvdtL8amHz9EwAZeE5j-8vhGMqsCOnVeECf0aE-x98BOPBr96-5Hzte1aOw9weH5aUfqTgULGBSGKvS2oxY2yCGg53X9GC1kbqHn3ssT8YjyiyGV9TvEXEXrTBFjioJjI');"></div>
-                        </div>
-                        <div class="aspect-square rounded-lg border border-slate-700 bg-slate-800/20 p-1 flex items-center justify-center opacity-50 cursor-not-allowed">
-                            <span class="material-symbols-outlined text-slate-600">lock</span>
-                        </div>
-                    </div>
-                    <button id="lock-btn" class="w-full py-4 bg-primary text-white font-bold text-xl uppercase italic rounded-lg shadow-[0_0_20px_rgba(37,140,244,0.4)] hover:scale-[1.02] transition-transform">
-                        Lock Selection
-                    </button>
-                </div>
+    <div id="vs-screen" class="fixed inset-0 z-[100] bg-background-dark flex flex-col transition-opacity duration-700">
+        <div class="absolute inset-0 cyber-grid opacity-30"></div>
+        <main class="flex-1 flex flex-col md:flex-row items-center justify-center relative z-10 gap-12">
+            <div class="text-center">
+                <div class="size-64 md:size-80 border-2 border-neon-blue rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBP8nw5vNjt7bi6IsVhAmQniJ3hzTRh3hRKqn1vUTckYCzwA7Bo1jQ55Giilsh0tS47xgwfHrbKaKlDbZpsgm0vOzHH1GCvcL-cCwULJv0bA5y-xBZUve_IFaLw2ZddvpfA19FTNCj1HCfCk9ozKrLZ2P3amibHTyQcVX819EBTdtiuSZIiIkr7oQrRAXD1hxP-QrurS7OJyRAP1Pl6wAebQvgu7E12D9tu6tM1rdD_3S1wFasgHoMBVGUOTp95w1QccAqGkCD1hQ8');"></div>
+                <h1 class="text-6xl font-black italic mt-4 text-neon-blue">ZERO</h1>
+            </div>
+            <div class="text-9xl font-black italic text-primary animate-pulse">VS</div>
+            <div class="text-center">
+                <div class="size-64 md:size-80 border-2 border-primary rounded-xl bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC4BNMBOQy8Uz62HXWOE3VuQawfZvaGrm3y38t-b3ZhWv9k2d97OSghZAGghB2xOvonOAtV1dsxR2d-Oyz1iptqCFgA9HYPyXci4_suvokH5zZ47r0ldHfU_dchB_jtWym0nmTfw1In1To4JpUsuFj_1A7MGusZau1Xhen3ZH5eCdOFDT-FMm5K4__BHj1-Sqc_z8h6fwB6JbQmWe4Wix_mDAAk7BQZt8gmMXbndb8RX1OLz8-XqftWoYFecdyjqh8-ULRDTibBROc');"></div>
+                <h1 class="text-6xl font-black italic mt-4 text-primary">KAEL</h1>
             </div>
         </main>
+        <footer class="p-12 z-20"><button id="engage-btn" class="w-full py-6 bg-primary text-white font-black text-2xl uppercase italic rounded-lg shadow-2xl hover:scale-105 transition">Engage Neural Link</button></footer>
     </div>
 
-    <div id="game-screen" class="scene hidden fixed inset-0 z-0">
-        <div class="absolute top-6 left-0 right-0 z-20 flex justify-between px-6 items-start gap-4 pointer-events-none">
-            <div class="w-[40%]">
-                <div class="flex justify-between text-white font-bold italic mb-1"><span>KAI</span><span id="p1-hp-text">100%</span></div>
-                <div class="h-4 bg-slate-800 rounded border border-white/10"><div id="p1-hp-bar" class="h-full bg-primary" style="width: 100%"></div></div>
+    <div id="battle-hud" class="hidden fixed inset-0 z-50 pointer-events-none p-6">
+        <div class="flex justify-between items-start w-full max-w-7xl mx-auto">
+            <div class="flex-1 flex items-center gap-4">
+                <div class="size-16 border-2 border-neon-blue bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCUU5a73IyqEH10DaQ81mvBsk-hlWAP6eB4fNkTbY60wDX6HHNnmVaRtAv-hoJN-isOu_af0nRn9pY6sSeyi5eU7OQP6qzpHZ9ZjznnDD91IZ6G9jw7QaAPumD_JbJzN04xE7oT-wJ_Z3a3ELFYU3WTUJkrNFzXQCLvFis3QWa8ydEmnlmBLkmmTXToq9BZ-1YvdtFCAtqEaXDwiIg-NLDFPmUVieHnXSV0XVUdhwq8y0KUP-28X0KEzoUEioGHIFJGxXhZ-ythYVs')"></div></div>
+                <div class="flex-1">
+                    <div class="flex justify-between font-black italic text-xl mb-1"><span>ZERO</span><span id="p1-hp-txt">100%</span></div>
+                    <div class="h-6 bg-black/40 border border-white/20 clip-slant overflow-hidden"><div id="p1-hp-bar" class="h-full bg-neon-blue transition-all" style="width: 100%"></div></div>
+                </div>
             </div>
-            <div class="flex flex-col items-center"><div class="bg-slate-900/80 border-2 border-primary rounded-xl px-4 py-2"><p id="timer" class="text-white text-3xl font-bold">99</p></div></div>
-            <div class="w-[40%] text-right">
-                <div class="flex justify-between text-white font-bold italic mb-1"><span id="p2-hp-text">100%</span><span>BRUNO</span></div>
-                <div class="h-4 bg-slate-800 rounded border border-white/10 scale-x-[-1]"><div id="p2-hp-bar" class="h-full bg-red-500" style="width: 100%"></div></div>
+            <div class="px-8 text-center"><div class="bg-black/80 border-x-4 border-primary px-6 py-2 rounded-b-xl"><h2 id="timer" class="text-primary text-5xl font-black italic">99</h2></div></div>
+            <div class="flex-1 flex items-center gap-4 flex-row-reverse">
+                <div class="size-16 border-2 border-neon-amber bg-black p-1"><div class="w-full h-full bg-cover" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCFqpjO4PrXf8GyC91uLsbkpKd_0oOew4RBmXt5IQtSh4N-_u-HUXM7myAQhzPgW6-uC86w5ulWBtvyDTJLuqFeQzDmyR9ipxBtlHi8a-3ERAmlO2duiXJvfAor9ZDEgDstVCh42Gb5CcnaQICXkyRrhA3AtfrcIganLfnMaWLzc6bF7q2ANV0LACD-0gaIRCev-WoKaLESo_P93TfUfhOH_0WJ_EprZfoldd3w4-W5oV_bOLkdKhVceU6Y_C8UoB5X77r_e6LdwiU')"></div></div>
+                <div class="flex-1 text-right">
+                    <div class="flex justify-between flex-row-reverse font-black italic text-xl mb-1"><span>KAEL</span><span id="p2-hp-txt">100%</span></div>
+                    <div class="h-6 bg-black/40 border border-white/20 clip-slant-rev overflow-hidden flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-neon-amber transition-all" style="width: 100%"></div></div>
+                </div>
             </div>
         </div>
 
-        <canvas id="game" width="384" height="224"></canvas>
-
-        <div class="absolute bottom-8 left-0 right-0 px-8 flex justify-between items-end">
-            <div class="grid grid-cols-3 gap-2 pointer-events-auto">
-                <div class="size-14"></div><button id="ctrl-up" class="size-14 bg-slate-800/80 rounded-lg flex items-center justify-center border-t-2 border-slate-700 text-white">▲</button><div class="size-14"></div>
-                <button id="ctrl-left" class="size-14 bg-slate-800/80 rounded-lg flex items-center justify-center border-l-2 border-slate-700 text-white">◀</button><div class="size-14"></div><button id="ctrl-right" class="size-14 bg-slate-800/80 rounded-lg flex items-center justify-center border-r-2 border-slate-700 text-white">▶</button>
+        <div class="absolute bottom-10 inset-x-10 flex justify-between items-end pointer-events-auto">
+            <div class="size-44 bg-white/5 border-2 border-white/20 rounded-full flex items-center justify-center backdrop-blur-sm relative">
+                <div id="joy" class="size-16 bg-primary/60 rounded-full border-2 border-primary shadow-[0_0_20px_primary]"></div>
+                <span class="absolute top-2 opacity-20 material-symbols-outlined">keyboard_arrow_up</span>
+                <span class="absolute bottom-2 opacity-20 material-symbols-outlined">keyboard_arrow_down</span>
+                <span class="absolute left-2 opacity-20 material-symbols-outlined">keyboard_arrow_left</span>
+                <span class="absolute right-2 opacity-20 material-symbols-outlined">keyboard_arrow_right</span>
             </div>
-            <div class="grid grid-cols-2 gap-4 pointer-events-auto">
-                <button id="atk-lp" class="size-16 bg-primary/80 rounded-full border-b-4 border-blue-800 text-white font-black">LP</button>
-                <button id="atk-hp" class="size-16 bg-red-600/80 rounded-full border-b-4 border-red-800 text-white font-black">HP</button>
+            <div class="grid grid-cols-2 gap-6 items-end pr-8">
+                <button id="btn-p" class="size-20 rounded-full border-2 border-neon-blue/50 bg-black/60 text-neon-blue font-black italic text-2xl">P</button>
+                <button id="btn-k" class="size-20 rounded-full border-2 border-neon-blue/50 bg-black/60 text-neon-blue font-black italic text-2xl">K</button>
+                <button id="btn-sp" class="col-span-2 size-24 rounded-full border-4 border-primary bg-primary/20 text-primary flex items-center justify-center shadow-[0_0_30px_rgba(236,91,19,0.6)]"><span class="material-symbols-outlined text-5xl">bolt</span></button>
             </div>
         </div>
     </div>
+
+    <div class="fixed inset-0 scanline z-[60]"></div>
+    <canvas id="game" width="384" height="224"></canvas>
 
     <script>
         const canvas = document.getElementById("game");
@@ -91,22 +85,14 @@
         const GRAVITY = 0.6;
         const heldKeys = new Set();
 
-        // 캐릭터 데이터셋
-        const HEROES = {
-            KAI: { speed: 4, power: 10, img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1" }
-        };
-
+        // 🛠️ 마야(KAI)의 업그레이드 버전 '제로(ZERO)' 데이터
         const SPRITES = {
             bg: new Image(),
-            bruno: new Image(),
-            kai: Array.from({length: 11}, (_, i) => { 
-                const img = new Image(); 
-                img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; 
-                return img; 
-            })
+            p1: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
+            p2: new Image()
         };
-        SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC4FeZ34s6B8cMopF2IaZyxtIGBeNsb2oErNLpxO-qxnAaW3crKxVHRWVkwG3D_0YwbL91E_SrvuN4CyGbS249MI6TZZAkOD1u3ZGU-cR-b1xclhmlLhbstmX8zeNL27HqJUJe89S-24yOp8zuq4hd0k6IlZQ-xe0Aphws4VpTMCfSZAHDiiGjSe9ebZf5bXr9yAtx9Dn8JQ-5iXi0BukAM1unvr7q8NsTFUoiMiocZUmEx0rPXlbEIiH9QR-RlB-G-V7l8Bnlqxc5C";
-        SPRITES.bruno.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
+        SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A"; // 넥서스 배틀 배경
+        SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq"; // 카엘 스프라이트 대용
 
         class Fighter {
             constructor(x, id, isPlayer) {
@@ -120,95 +106,72 @@
                 this.isHit = false;
             }
 
-            // 🛠️ AI 로직 탑재
-            updateAI(opponent, time) {
-                if (this.isHit || ["punch","kick"].includes(this.currentState)) return;
+            // 🛠️ 고성능 전술 AI
+            updateAI(opponent) {
+                if (this.isHit || ["punch", "kick", "special"].includes(this.currentState)) return;
                 const dist = Math.abs(this.x - opponent.x);
-                if (dist > 60) { this.vx = this.x < opponent.x ? 1.5 : -1.5; this.currentState = "walk"; }
-                else { this.vx = 0; if(Math.random() < 0.05) this.attack(opponent); else this.currentState = "idle"; }
+                if (dist > 65) {
+                    this.vx = this.x < opponent.x ? 1.8 : -1.8;
+                    this.currentState = "walk";
+                } else {
+                    this.vx = 0;
+                    if (Math.random() < 0.04) this.attack(opponent, Math.random() > 0.5 ? "punch" : "kick");
+                    else this.currentState = "idle";
+                }
             }
 
-            attack(opponent) {
-                this.currentState = "punch"; this.frameIndex = 0;
-                if (Math.abs(this.x - opponent.x) < 55) opponent.takeDamage(10);
+            attack(opponent, type) {
+                this.currentState = type; this.frameIndex = 0;
+                if (Math.abs(this.x - opponent.x) < 60) opponent.takeDamage(type === "special" ? 20 : 10);
             }
 
             takeDamage(amt) {
                 this.hp = Math.max(0, this.hp - amt); this.isHit = true;
-                setTimeout(() => this.isHit = false, 200);
-                updateHUD();
+                new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg').play().catch(()=>{});
+                setTimeout(() => this.isHit = false, 250);
+                updateUI();
             }
 
-            update(time, opponent) {
+            update(t, opponent) {
                 if (this.isPlayer) {
-                    if (heldKeys.has("Left")) { this.vx = -3.5; this.currentState = "walk"; }
-                    else if (heldKeys.has("Right")) { this.vx = 3.5; this.currentState = "walk"; }
-                    else { this.vx = 0; this.currentState = "idle"; }
-                    if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -12; }
-                } else { this.updateAI(opponent, time); }
+                    if (!["punch", "kick", "special"].includes(this.currentState)) {
+                        if (heldKeys.has("Left")) { this.vx = -3.5; this.currentState = "walk"; }
+                        else if (heldKeys.has("Right")) { this.vx = 3.5; this.currentState = "walk"; }
+                        else { this.vx = 0; this.currentState = "idle"; }
+                        if (heldKeys.has("Up") && this.y >= GROUND_Y) this.vy = -12;
+                    }
+                } else { this.updateAI(opponent); }
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
                 this.x = Math.max(20, Math.min(364, this.x));
                 this.facing = this.x < opponent.x ? 1 : -1;
 
-                if (time - this.animTimer > 100) {
+                if (t - this.animTimer > 100) {
                     this.frameIndex = (this.frameIndex + 1) % (this.currentState === "walk" ? 2 : 1);
-                    this.animTimer = time;
-                    if (this.currentState === "punch" && this.frameIndex === 0) this.currentState = "idle";
+                    this.animTimer = t;
+                    if (this.frameIndex === 0 && ["punch", "kick", "special"].includes(this.currentState)) this.currentState = "idle";
                 }
             }
 
             draw() {
-                ctx.save();
-                ctx.translate(this.x, this.y);
-                ctx.scale(this.facing, 1);
-                const img = this.isPlayer ? SPRITES.kai[this.currentState === "punch" ? 5 : (this.currentState === "walk" ? this.frameIndex+1 : 0)] : SPRITES.bruno;
-                if (this.isHit) ctx.filter = "brightness(3)";
+                ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
+                const img = this.isPlayer ? SPRITES.p1[this.currentState === "punch" ? 5 : (this.currentState === "walk" ? this.frameIndex+1 : 0)] : SPRITES.p2;
+                if (this.isHit) { ctx.filter = "brightness(4)"; ctx.translate(Math.random()*4-2, 0); }
                 ctx.drawImage(img, -32, -64, 64, 64);
                 ctx.restore();
             }
         }
 
-        let p1, p2, gameActive = false;
+        let p1, p2, active = false;
 
-        function updateHUD() {
+        function updateUI() {
             document.getElementById("p1-hp-bar").style.width = p1.hp + "%";
             document.getElementById("p2-hp-bar").style.width = p2.hp + "%";
-            document.getElementById("p1-hp-text").innerText = p1.hp + "%";
-            document.getElementById("p2-hp-text").innerText = p2.hp + "%";
+            document.getElementById("p1-hp-txt").innerText = p1.hp + "%";
+            document.getElementById("p2-hp-txt").innerText = p2.hp + "%";
         }
 
         function gameLoop(t) {
-            if (!gameActive) return;
-            ctx.drawImage(SPRITES.bg, 0, 0, 384, 224);
-            p1.update(t, p2); p2.update(t, p1);
-            p1.draw(); p2.draw();
-            requestAnimationFrame(gameLoop);
-        }
-
-        // 🛠️ 조작 버튼 바인딩
-        function setupButtons() {
-            const bind = (id, key) => {
-                const el = document.getElementById(id);
-                el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
-                el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
-            };
-            bind("ctrl-left", "Left"); bind("ctrl-right", "Right"); bind("ctrl-up", "Up");
-            document.getElementById("atk-lp").onpointerdown = () => p1.attack(p2);
-            document.getElementById("atk-hp").onpointerdown = () => p1.attack(p2);
-        }
-
-        // 시작 핸들러
-        document.getElementById("lock-btn").onclick = () => {
-            document.getElementById("select-screen").classList.add("hidden");
-            document.getElementById("game-screen").classList.remove("hidden");
-            p1 = new Fighter(80, "KAI", true);
-            p2 = new Fighter(300, "BRUNO", false);
-            setupButtons();
-            gameActive = true;
-            requestAnimationFrame(gameLoop);
-        };
-    </script>
-</body>
-</html>
+            if (!active) return;
+            ctx.drawImage(SPRITES.bg, 0, 0,

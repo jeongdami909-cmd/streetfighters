@@ -2,141 +2,148 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>STREET CODING FIGHTER v12.0 - THE ARTISTIC ENGINE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>STREET CODING FIGHTER v13.0</title>
 <style>
-    body { margin: 0; background: #000; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    canvas { border: 5px solid #444; box-shadow: 0 0 100px rgba(0,0,0,1); }
+    body { margin: 0; background: #000; overflow: hidden; touch-action: none; }
+    canvas { display: block; margin: auto; }
+    /* 시작 화면 오버레이 */
+    #overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.8); display: flex; flex-direction: column;
+        align-items: center; justify-content: center; z-index: 100;
+        color: #ffcc33; font-family: 'Courier New', monospace;
+    }
+    #start-btn {
+        padding: 20px 50px; font-size: 2rem; background: #ff4444;
+        color: white; border: none; border-radius: 10px; cursor: pointer;
+        box-shadow: 0 0 20px #ff4444; margin-top: 20px;
+    }
+    #input {
+        position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+        padding: 15px; font-size: 1.5rem; background: rgba(0,0,0,0.7);
+        color: #39ff14; border: 3px solid #39ff14; width: 80%; text-align: center;
+    }
 </style>
 </head>
 <body>
 
-<canvas id="game" width="960" height="540"></canvas>
+<div id="overlay">
+    <h1 style="text-shadow: 0 0 20px red;">STREET CODING FIGHTER</h1>
+    <p>모네의 노을 아래서 벌어지는 코드 배틀</p>
+    <button id="start-btn">START GAME</button>
+</div>
+
+<canvas id="game"></canvas>
+<input id="input" placeholder="명령어: h (장풍), a (공격)" autocomplete="off">
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+const input = document.getElementById("input");
+const overlay = document.getElementById("overlay");
 
-// 1. 사운드 시스템 (튜토리얼 6편 이후 필수 요소)
+// 캔버스 크기 조절 (모바일 대응)
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
 const sounds = {
     hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
-    bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg') // 고딕록 풍 배경음
+    bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
 };
+sounds.bgm.loop = true;
 
 const GRAVITY = 0.8;
-const GROUND_Y = 480;
-let keys = {};
-window.addEventListener("keydown", e => keys[e.key.toLowerCase()] = true);
-window.addEventListener("keyup", e => keys[e.key.toLowerCase()] = false);
+const GROUND_Y = canvas.height * 0.85;
 
 class Fighter {
-    constructor(x, color, name, controls) {
+    constructor(x, color, name, isPlayer) {
         this.x = x; this.y = GROUND_Y;
         this.vx = 0; this.vy = 0;
-        this.color = color; this.name = name; this.controls = controls;
+        this.color = color; this.name = name;
         this.hp = 100; this.state = "idle";
-        this.facing = x < 480 ? 1 : -1;
-        this.frame = 0;
-        this.width = 70; this.height = 150;
+        this.facing = isPlayer ? 1 : -1;
+        this.width = 60; this.height = 140;
     }
 
-    // 튜토리얼 5편 기반: 정교한 박스 판정
-    getPushBox() { return { x: this.x - 25, y: this.y - 120, w: 50, h: 120 }; }
-    getHurtBoxes() { return [{ x: this.x - 30, y: this.y - 150, w: 60, h: 150 }]; }
+    // SF2 튜토리얼 5편의 충돌 판정 계승
+    getHurtBoxes() { return [{ x: this.x - 30, y: this.y - 140, w: 60, h: 140 }]; }
     getHitBox() { 
         if (this.state !== "attack") return null;
-        return { x: this.x + (this.facing * 50), y: this.y - 120, w: 60, h: 40 }; 
+        return { x: this.x + (this.facing * 40), y: this.y - 110, w: 50, h: 40 }; 
     }
 
-    update(opponent) {
+    update() {
         if (this.hp <= 0) return;
-
-        // 이동 및 점프 로직
-        if (this.state !== "attack" && this.state !== "hit") {
-            if (keys[this.controls.right]) { this.vx = 5; this.facing = 1; this.state = "walk"; }
-            else if (keys[this.controls.left]) { this.vx = -5; this.facing = -1; this.state = "walk"; }
-            else { this.vx = 0; this.state = "idle"; }
-
-            if (keys[this.controls.up] && this.y >= GROUND_Y) { this.vy = -18; this.state = "jump"; }
-            if (keys[this.controls.attack]) { 
-                this.state = "attack"; 
-                setTimeout(() => this.state = "idle", 300); 
-            }
-        }
-
         this.vy += GRAVITY;
-        this.x += this.vx; this.y += this.vy;
+        this.y += this.vy;
         if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
-
-        // 충돌 및 데미지 판정
-        const hit = this.getHitBox();
-        const opponentHurts = opponent.getHurtBoxes();
-        if (hit) {
-            opponentHurts.forEach(hurt => {
-                if (hit.x < hurt.x + hurt.w && hit.x + hit.w > hurt.x &&
-                    hit.y < hurt.y + hurt.h && hit.y + hit.h > hurt.y && opponent.state !== "hit") {
-                    opponent.takeDamage(10);
-                }
-            });
-        }
-    }
-
-    takeDamage(amt) {
-        this.hp -= amt;
-        this.state = "hit";
-        sounds.hit.currentTime = 0;
-        sounds.hit.play().catch(() => {}); // 사운드 출력!
-        setTimeout(() => this.state = "idle", 400);
     }
 
     draw() {
         ctx.save();
-        // 실제 캐릭터처럼 보이기 위한 시각적 보정
-        const charColor = this.state === "hit" ? "white" : this.color;
-        ctx.fillStyle = charColor;
-        
-        // 공격 시 몸이 기울어지는 연출 (크리스찬 베일의 Equilibrium 느낌!)
-        if (this.state === "attack") ctx.translate(this.facing * 20, 0);
-        
-        // 캐릭터 본체
+        ctx.fillStyle = this.state === "hit" ? "white" : this.color;
         ctx.fillRect(this.x - this.width/2, this.y - this.height, this.width, this.height);
         
-        // 이름 표시
-        ctx.fillStyle = "white";
-        ctx.font = "bold 16px Courier New";
-        ctx.fillText(this.name, this.x - 30, this.y - 165);
+        // HP 바 (캐릭터 머리 위)
+        ctx.fillStyle = "#ff4444";
+        ctx.fillRect(this.x - 30, this.y - 160, 60, 5);
+        ctx.fillStyle = "#39ff14";
+        ctx.fillRect(this.x - 30, this.y - 160, (this.hp/100) * 60, 5);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(200, "cyan", "KEN", { left: 'a', right: 'd', up: 'w', attack: 'f' });
-const p2 = new Fighter(760, "magenta", "CHUN-LI", { left: 'j', right: 'l', up: 'i', attack: 'h' });
-
-function drawHUD() {
-    // 90년대 오락실 스타일의 체력바 (v2.0 UI 계승)
-    ctx.fillStyle = "#333";
-    ctx.fillRect(50, 40, 350, 30); ctx.fillRect(560, 40, 350, 30);
-    ctx.fillStyle = "#39ff14";
-    ctx.fillRect(50, 40, p1.hp * 3.5, 30);
-    ctx.fillRect(910, 40, -p2.hp * 3.5, 30);
-}
+const p1 = new Fighter(canvas.width * 0.2, "cyan", "KEN", true);
+const p2 = new Fighter(canvas.width * 0.8, "magenta", "CHUN-LI", false);
 
 function loop() {
-    // 모네의 '노을' 느낌을 담은 배경 그라디언트
-    const sky = ctx.createLinearGradient(0, 0, 0, 540);
-    sky.addColorStop(0, "#1a1a2e"); sky.addColorStop(0.5, "#000"); sky.addColorStop(1, "#6a5acd");
-    ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, 960, 540);
+    // 모네의 노을 배경
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#1a1a2e"); grad.addColorStop(0.6, "#000"); grad.addColorStop(1, "#6a5acd");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    p1.update(p2); p2.update(p1);
+    p1.update(); p2.update();
     p1.draw(); p2.draw();
-    drawHUD();
+
+    // 충돌 체크 로직 (간소화)
+    const hit = p1.getHitBox();
+    const target = p2.getHurtBoxes()[0];
+    if (hit && hit.x < target.x + target.w && hit.x + hit.w > target.x && p2.state !== "hit") {
+        p2.hp -= 10; p2.state = "hit";
+        sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
+        setTimeout(() => p2.state = "idle", 300);
+    }
+
     requestAnimationFrame(loop);
 }
 
-// 사운드 활성화를 위한 첫 클릭 이벤트
-window.addEventListener("mousedown", () => { sounds.bgm.play(); loop(); }, { once: true });
-ctx.fillStyle = "white"; ctx.font = "30px Courier New";
-ctx.fillText("CLICK TO START ENGINE", 300, 270);
+// 모바일 시동 장치 [핵심 수정 사항]
+function startGame() {
+    overlay.style.display = "none";
+    sounds.bgm.play().catch(() => console.log("Audio Blocked"));
+    loop();
+}
+
+document.getElementById("start-btn").addEventListener("click", startGame);
+document.getElementById("start-btn").addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    startGame();
+});
+
+input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        const cmd = input.value.trim().toLowerCase();
+        input.value = "";
+        if (cmd === 'a') { p1.state = "attack"; setTimeout(() => p1.state = "idle", 200); }
+        if (cmd === 'h') { p1.vy = -15; } // 점프 테스트
+    }
+});
 </script>
 </body>
 </html>

@@ -3,51 +3,54 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEXUS STRIKE: NEON FURY</title>
+<title>NEXUS STRIKE: AI CHALLENGE</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
 <style>
     body { margin: 0; background: #101922; overflow: hidden; touch-action: none; font-family: 'Space Grotesk', sans-serif; }
-    canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; }
+    canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; filter: contrast(1.1); }
     
-    /* 🛠️ 오버레이 및 버튼 디자인 */
-    #overlay { position: fixed; inset: 0; background: rgba(16,25,34,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #0df2f2; }
-    .neon-btn { padding: 15px 60px; font-size: 1.5rem; background: #ff00ff; color: white; border: 3px solid #fff; border-radius: 4px; font-weight: 900; italic: true; box-shadow: 0 0 30px #ff00ff; cursor: pointer; }
-    
-    #controls { position: fixed; bottom: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; z-index: 500; pointer-events: none; }
-    .d-pad, .actions { display: grid; gap: 8px; pointer-events: auto; }
+    /* 🛠️ 선택 화면 테마를 반영한 오버레이 */
+    #overlay { position: fixed; inset: 0; background: rgba(16,25,34,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #258cf4; border: 8px solid rgba(37,140,244,0.1); }
+    .start-btn { padding: 25px 80px; font-size: 2rem; background: #258cf4; color: white; border: none; border-radius: 12px; font-weight: 900; italic: true; box-shadow: 0 10px 40px rgba(37,140,244,0.5); cursor: pointer; transition: 0.2s; }
+    .start-btn:active { transform: scale(0.95); }
+
+    /* 조작 컨트롤러 */
+    #controls { position: fixed; bottom: 40px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; z-index: 500; pointer-events: none; }
+    .btn-group { display: grid; gap: 12px; pointer-events: auto; }
     .btn { 
-        width: 65px; height: 65px; background: rgba(13,242,242,0.1); border: 2px solid #0df2f2; border-radius: 8px;
-        color: #0df2f2; display: flex; align-items: center; justify-content: center; font-weight: 900;
-        user-select: none; -webkit-tap-highlight-color: transparent; transition: 0.1s;
+        width: 75px; height: 75px; background: rgba(37,140,244,0.1); border: 3px solid #258cf4; border-radius: 15px;
+        color: #258cf4; display: flex; align-items: center; justify-content: center; font-weight: 900;
+        user-select: none; -webkit-tap-highlight-color: transparent; 
     }
-    .btn:active { background: #0df2f2; color: #101922; transform: scale(0.9); box-shadow: 0 0 15px #0df2f2; }
-    .btn-sp { border-color: #ff00ff; color: #ff00ff; }
-    .btn-sp:active { background: #ff00ff; color: #fff; box-shadow: 0 0 15px #ff00ff; }
+    .btn:active { background: #258cf4; color: white; box-shadow: 0 0 20px #258cf4; }
+    .btn-red { border-color: #ef4444; color: #ef4444; }
+    .btn-red:active { background: #ef4444; color: white; box-shadow: 0 0 20px #ef4444; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 3rem; italic: true; text-shadow: 0 0 20px #0df2f2;">NEXUS STRIKE</h1>
-    <p style="color: #ff00ff; letter-spacing: 5px; margin-bottom: 30px;">NEON FURY: MAYA RISING</p>
-    <button id="start-btn" class="neon-btn">READY TO FIGHT</button>
+    <div class="mb-8 text-center">
+        <h1 class="text-6xl font-black italic tracking-tighter uppercase text-white">KAI <span class="text-primary">VS</span> BRUNO</h1>
+        <p class="text-primary tracking-widest mt-2">AI CHALLENGE MODE : ROUND 1</p>
+    </div>
+    <button id="start-btn" class="start-btn">ENGAGE FIGHT</button>
 </div>
 
 <canvas id="game" width="384" height="224"></canvas>
 
 <div id="controls">
-    <div class="d-pad">
+    <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
         <div style="grid-column: 2"><div class="btn" id="up">UP</div></div>
         <div style="grid-column: 1"><div class="btn" id="left">◀</div></div>
         <div style="grid-column: 3"><div class="btn" id="right">▶</div></div>
-        <div style="grid-column: 2"><div class="btn" id="down">DN</div></div>
     </div>
-    <div class="actions" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="btn-group" style="grid-template-columns: repeat(2, 1fr);">
         <div class="btn" id="lp">LP</div>
-        <div class="btn" id="hp">HP</div>
+        <div class="btn btn-red" id="sp">SP</div>
         <div class="btn" id="lk">LK</div>
-        <div class="btn btn-sp" id="sp">SP</div>
+        <div class="btn" id="hk">HK</div>
     </div>
 </div>
 
@@ -57,26 +60,22 @@ const ctx = canvas.getContext("2d");
 const GROUND_Y = 195;
 const GRAVITY = 0.6;
 
-// 🛠️ 마야 스프라이트 데이터 매핑
-const SPRITE_URLS = {
-    bg: "https://lh3.googleusercontent.com/aida-public/AB6AXuC4FeZ34s6B8cMopF2IaZyxtIGBeNsb2oErNLpxO-qxnAaW3crKxVHRWVkwG3D_0YwbL91E_SrvuN4CyGbS249MI6TZZAkOD1u3ZGU-cR-b1xclhmlLhbstmX8zeNL27HqJUJe89S-24yOp8zuq4hd0k6IlZQ-xe0Aphws4VpTMCfSZAHDiiGjSe9ebZf5bXr9yAtx9Dn8JQ-5iXi0BukAM1unvr7q8NsTFUoiMiocZUmEx0rPXlbEIiH9QR-RlB-G-V7l8Bnlqxc5C",
-    maya: Array.from({length: 11}, (_, i) => `http://googleusercontent.com/profile/picture/${13 + i}`),
-    bruno: "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq"
+// 자산 로드 (사용자 제공 이미지 매핑)
+const IMAGES = {
+    bg: new Image(),
+    kai: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
+    bruno: new Image()
 };
+IMAGES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC4FeZ34s6B8cMopF2IaZyxtIGBeNsb2oErNLpxO-qxnAaW3crKxVHRWVkwG3D_0YwbL91E_SrvuN4CyGbS249MI6TZZAkOD1u3ZGU-cR-b1xclhmlLhbstmX8zeNL27HqJUJe89S-24yOp8zuq4hd0k6IlZQ-xe0Aphws4VpTMCfSZAHDiiGjSe9ebZf5bXr9yAtx9Dn8JQ-5iXi0BukAM1unvr7q8NsTFUoiMiocZUmEx0rPXlbEIiH9QR-RlB-G-V7l8Bnlqxc5C";
+IMAGES.bruno.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
 
-const IMAGES = {};
-function loadAssets() {
-    IMAGES.bg = new Image(); IMAGES.bg.src = SPRITE_URLS.bg;
-    IMAGES.bruno = new Image(); IMAGES.bruno.src = SPRITE_URLS.bruno;
-    IMAGES.maya = SPRITE_URLS.maya.map(url => {
-        const img = new Image(); img.src = url; return img;
-    });
-}
+const sounds = {
+    hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
+    bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
+};
 
 const heldKeys = new Set();
-const ANIMS = {
-    idle: [0], walk: [1, 2], jump: [3], punch: [4, 5], kick: [6, 7], special: [8, 9, 10]
-};
+const ANIMS = { idle: [0], walk: [1, 2], jump: [3], punch: [4, 5], kick: [6, 7], special: [8, 9, 10], hit: [0] };
 
 class Fighter {
     constructor(x, id, isPlayer) {
@@ -84,36 +83,71 @@ class Fighter {
         this.vx = 0; this.vy = 0;
         this.hp = 100; this.id = id;
         this.currentState = "idle";
-        this.frameIndex = 0;
-        this.animTimer = 0;
+        this.frameIndex = 0; this.animTimer = 0;
         this.facing = isPlayer ? 1 : -1;
         this.isPlayer = isPlayer;
+        this.isHit = false;
+    }
+
+    // 🛠️ SF AI 로직: 거리 기반 의사결정
+    updateAI(opponent, time) {
+        if (this.isHit || ["punch","kick","special"].includes(this.currentState)) return;
+        
+        const dist = Math.abs(this.x - opponent.x);
+        
+        if (dist > 70) {
+            // 적군 추격
+            this.vx = this.x < opponent.x ? 2 : -2;
+            this.currentState = "walk";
+        } else {
+            // 공격 범위 내 진입 시 랜덤 공격
+            this.vx = 0;
+            if (Math.random() < 0.03) { // 3% 확률로 공격 발동
+                this.attack(opponent, Math.random() > 0.5 ? "punch" : "kick");
+            } else {
+                this.currentState = "idle";
+            }
+        }
+    }
+
+    attack(opponent, type) {
+        this.currentState = type;
+        this.frameIndex = 0;
+        if (Math.abs(this.x - opponent.x) < 55) {
+            opponent.takeDamage(8);
+        }
+    }
+
+    takeDamage(amt) {
+        this.hp = Math.max(0, this.hp - amt);
+        this.isHit = true;
+        sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
+        setTimeout(() => this.isHit = false, 300);
     }
 
     update(time, opponent) {
         if (this.isPlayer) {
-            const isL = heldKeys.has("Left"); const isR = heldKeys.has("Right");
             if (this.currentState !== "jump" && !["punch","kick","special"].includes(this.currentState)) {
-                if (isL) { this.vx = -3; this.currentState = "walk"; }
-                else if (isR) { this.vx = 3; this.currentState = "walk"; }
+                if (heldKeys.has("Left")) { this.vx = -3.5; this.currentState = "walk"; }
+                else if (heldKeys.has("Right")) { this.vx = 3.5; this.currentState = "walk"; }
                 else { this.vx = 0; this.currentState = "idle"; }
                 if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -12; this.currentState = "jump"; }
             }
+        } else {
+            this.updateAI(opponent, time);
         }
 
         this.vy += GRAVITY;
         this.x += this.vx; this.y += this.vy;
         if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; if (this.currentState === "jump") this.currentState = "idle"; }
-        this.x = Math.max(30, Math.min(354, this.x));
+        this.x = Math.max(20, Math.min(364, this.x));
+        this.facing = this.x < opponent.x ? 1 : -1;
 
-        // 애니메이션 루프
-        if (time - this.animTimer > 120) {
-            const sequence = ANIMS[this.currentState];
-            this.frameIndex = (this.frameIndex + 1) % sequence.length;
+        if (time - this.animTimer > 100) {
+            const seq = ANIMS[this.currentState];
+            this.frameIndex = (this.frameIndex + 1) % seq.length;
             this.animTimer = time;
-            if (this.frameIndex === 0 && ["punch","kick","special"].includes(this.currentState)) {
-                this.currentState = "idle";
-            }
+            if (this.frameIndex === 0 && ["punch","kick","special"].includes(this.currentState)) this.currentState = "idle";
         }
     }
 
@@ -121,10 +155,8 @@ class Fighter {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.scale(this.facing, 1);
-        const imgIdx = ANIMS[this.currentState][this.frameIndex];
-        const img = this.isPlayer ? IMAGES.maya[imgIdx] : IMAGES.bruno;
-        
-        // 🛠️ 마야 스프라이트 출력 (64x64 크기 최적화)
+        const img = this.isPlayer ? IMAGES.kai[ANIMS[this.currentState][this.frameIndex]] : IMAGES.bruno;
+        if (this.isHit) ctx.filter = "brightness(3) contrast(1.5)";
         ctx.drawImage(img, -32, -64, 64, 64);
         ctx.restore();
     }
@@ -132,48 +164,52 @@ class Fighter {
 
 let p1, p2;
 function drawHUD() {
-    // 🛠️ 사용자 디자인 UI 이식
-    ctx.fillStyle = "#101922aa"; ctx.fillRect(10, 10, 150, 15); ctx.fillRect(224, 10, 150, 15);
-    ctx.fillStyle = "#ff00ff"; ctx.fillRect(10, 10, 150, 15); // 배경
-    ctx.fillStyle = "#0df2f2"; ctx.fillRect(10, 10, p1.hp * 1.5, 15); // P1 HP
-    ctx.fillStyle = "#ef4444"; ctx.fillRect(224, 10, p2.hp * 1.5, 15); // P2 HP
+    // 🛠️ 넥서스 스타일 HUD 구현
+    const barW = 140;
+    ctx.fillStyle = "#101922"; ctx.fillRect(20, 20, barW, 12); ctx.fillRect(224, 20, barW, 12);
+    ctx.fillStyle = "#258cf4"; ctx.fillRect(20, 20, (p1.hp/100)*barW, 12); // KAI HP
+    ctx.fillStyle = "#ef4444"; ctx.fillRect(364, 20, -(p2.hp/100)*barW, 12); // BRUNO HP
     
-    ctx.fillStyle = "white"; ctx.font = "bold 12px Space Grotesk";
-    ctx.fillText("MAYA", 15, 22); ctx.textAlign = "right"; ctx.fillText("BRUNO", 370, 22);
-    ctx.textAlign = "center"; ctx.font = "bold 20px Space Grotesk";
-    ctx.fillText("99", 192, 25);
+    ctx.fillStyle = "white"; ctx.font = "bold 10px Space Grotesk"; ctx.textAlign = "left";
+    ctx.fillText("KAI", 20, 15); ctx.textAlign = "right"; ctx.fillText("BRUNO", 364, 15);
+    ctx.textAlign = "center"; ctx.font = "bold 18px Space Grotesk"; ctx.fillText("99", 192, 30);
 }
 
 function loop(t) {
-    ctx.drawImage(IMAGES.bg, 0, 0, 384, 224); // 넥서스 스트라이크 배경
+    ctx.drawImage(IMAGES.bg, 0, 0, 384, 224);
     p1.update(t, p2); p2.update(t, p1);
     p1.draw(); p2.draw();
     drawHUD();
-    requestAnimationFrame(loop);
+    if (p1.hp > 0 && p2.hp > 0) requestAnimationFrame(loop);
 }
 
-// 🛠️ 버튼 조작 버그 완전 수정
 function bind(id, code) {
     const el = document.getElementById(id);
-    const start = (e) => { e.preventDefault(); heldKeys.add(code); };
-    const end = (e) => { e.preventDefault(); heldKeys.delete(code); };
-    el.addEventListener('touchstart', start, {passive: false});
-    el.addEventListener('touchend', end, {passive: false});
+    const down = (e) => { e.preventDefault(); heldKeys.add(code); };
+    const up = (e) => { e.preventDefault(); heldKeys.delete(code); };
+    el.addEventListener('touchstart', down, {passive: false});
+    el.addEventListener('touchend', up, {passive: false});
     el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
 }
 
 document.getElementById("start-btn").onclick = () => {
-    loadAssets();
-    p1 = new Fighter(100, "MAYA", true);
-    p2 = new Fighter(280, "BRUNO", false);
+    p1 = new Fighter(80, "KAI", true);
+    p2 = new Fighter(304, "BRUNO", false);
     
-    bind("left", "Left"); bind("right", "Right"); bind("up", "Up");
-    const action = (type) => { if(p1.currentState === "idle") { p1.currentState = type; p1.frameIndex = 0; if(Math.abs(p1.x-p2.x)<60) p2.hp -= 10; } };
-    document.getElementById("lp").onpointerdown = () => action("punch");
-    document.getElementById("lk").onpointerdown = () => action("kick");
-    document.getElementById("hp").onpointerdown = () => action("kick"); // 강공격 매핑
-    document.getElementById("sp").onpointerdown = () => action("special");
+    const b = (id, code) => {
+        const el = document.getElementById(id);
+        el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(code); };
+        el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(code); };
+    };
+    b("left", "Left"); b("right", "Right"); b("up", "Up");
+    
+    const act = (type) => { if(p1.currentState === "idle") p1.attack(p2, type); };
+    document.getElementById("lp").onpointerdown = () => act("punch");
+    document.getElementById("lk").onpointerdown = () => act("kick");
+    document.getElementById("hk").onpointerdown = () => act("kick");
+    document.getElementById("sp").onpointerdown = () => act("special");
 
+    sounds.bgm.loop = true; sounds.bgm.play().catch(()=>{});
     document.getElementById("overlay").remove();
     requestAnimationFrame(loop);
 };

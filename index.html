@@ -141,10 +141,9 @@
                 
                 // 캐릭터 이미지 (포스터 기반 줌)
                 if (this.img.complete && this.img.width > 10) {
-                    const ratio = this.img.width / this.img.height;
-                    const w = DRAW_SIZE * ratio;
                     const bob = this.state === "walk" ? Math.sin(Date.now() / 100) * 8 : 0;
-                    ctx.drawImage(this.img, -w/2, -DRAW_SIZE + bob, w, DRAW_SIZE);
+                    // 전신을 큼직하게 그립니다.
+                    ctx.drawImage(this.img, -DRAW_SIZE/2, -DRAW_SIZE + bob, DRAW_SIZE, DRAW_SIZE);
                 } else {
                     ctx.fillStyle = "rgba(255,255,255,0.2)"; ctx.fillRect(-20, -120, 40, 120);
                 }

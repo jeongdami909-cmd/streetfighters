@@ -7,18 +7,18 @@
 <style>
     canvas { image-rendering: pixelated; object-fit: contain; width: 100%; height: 100%; background: #000; }
     body { margin: 0; background: #000; overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
-    #start-btn { padding: 20px 60px; font-size: 2rem; background: #ff4444; color: white; border: 4px solid #fff; border-radius: 50px; cursor: pointer; font-weight: bold; }
+    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
+    #start-btn { padding: 20px 60px; font-size: 2rem; background: #ff4444; color: white; border: 4px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px #ff4444; }
     #controls { position: fixed; bottom: 30px; width: 100%; display: flex; justify-content: space-around; z-index: 500; pointer-events: none; }
-    .btn { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border: 3px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; user-select: none; }
+    .btn { width: 85px; height: 85px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.2rem; user-select: none; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 2.5rem; text-shadow: 0 0 20px red;">STREET CODING</h1>
-    <p>[Architecture & Delta Time Update]</p>
-    <button id="start-btn">BOOT SYSTEM</button>
+    <h1 style="font-size: 2.5rem; text-shadow: 0 0 20px red;">ORIGIN POINT ENGINE</h1>
+    <p>Part 4: Professional Animation Logic</p>
+    <button id="start-btn">FIGHT!</button>
 </div>
 
 <canvas id="game" width="384" height="224"></canvas>
@@ -32,3 +32,105 @@
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+const startBtn = document.getElementById("start-btn");
+
+// 튜토리얼 4편: 애니메이션 상태별 프레임 리스트
+const FRAME_DATA = {
+    p1: { idle: ["🧑‍💻", "👨‍💻"], attack: ["👊", "🤜", "✨"], hit: ["🤕", "😵"] },
+    p2: { idle: ["👾", "💀"], attack: ["💥", "🔥"], hit: ["😵", "🩸"] }
+};
+
+class Fighter {
+    constructor(x, config) {
+        this.x = x; this.y = 190; // Stage Floor
+        this.vx = 0; this.hp = 100;
+        this.state = "idle";
+        this.config = config;
+        this.frameIndex = 0;
+        this.animTimer = 0; // 애니메이션 속도 조절용
+    }
+
+    update(currentTime, opponent) {
+        if (this.hp <= 0) return;
+        this.x += this.vx;
+        this.x = Math.max(30, Math.min(354, this.x));
+
+        // 튜토리얼 4편: 시간 기반 프레임 업데이트 (약 100ms마다)
+        if (currentTime - this.animTimer > 100) {
+            this.frameIndex = (this.frameIndex + 1) % FRAME_DATA[this.config][this.state].length;
+            this.animTimer = currentTime;
+            
+            // 공격 애니메이션 종료 시 idle 복귀
+            if (this.state === "attack" && this.frameIndex === 0) this.state = "idle";
+            // 히트 애니메이션 종료 시 idle 복귀
+            if (this.state === "hit" && this.frameIndex === 0) this.state = "idle";
+        }
+
+        // 충돌 로직
+        if (this.state === "attack" && this.frameIndex === 1) {
+            const dist = Math.abs(this.x - opponent.x);
+            if (dist < 50 && opponent.state !== "hit") {
+                opponent.hp -= 10; opponent.state = "hit";
+                opponent.frameIndex = 0; // 히트 즉시 첫 프레임
+            }
+        }
+    }
+
+    draw() {
+        ctx.save();
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom"; // 튜토리얼의 '오리진 포인트(바닥)' 개념 적용
+        
+        ctx.font = "60px Arial";
+        const currentEmoji = FRAME_DATA[this.config][this.state][this.frameIndex];
+        
+        // 피격 시 번쩍임 효과
+        if (this.state === "hit") ctx.filter = "brightness(2) contrast(1.5)";
+        
+        ctx.fillText(currentEmoji, this.x, this.y);
+        
+        // HP 바
+        ctx.filter = "none";
+        ctx.fillStyle = "#ff4444"; ctx.fillRect(this.x - 20, this.y - 70, 40, 4);
+        ctx.fillStyle = "#39ff14"; ctx.fillRect(this.x - 20, this.y - 70, (this.hp/100)*40, 4);
+        ctx.restore();
+    }
+}
+
+const p1 = new Fighter(100, "p1");
+const p2 = new Fighter(280, "p2");
+
+function loop(timestamp) {
+    const sky = ctx.createLinearGradient(0, 0, 0, 224);
+    sky.addColorStop(0, "#1a1a2e"); sky.addColorStop(0.7, "#000"); sky.addColorStop(1, "#6a5acd");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, 384, 224);
+
+    p1.update(timestamp, p2); p2.update(timestamp, p1);
+    p1.draw(); p2.draw();
+    
+    if (p1.hp > 0 && p2.hp > 0) requestAnimationFrame(loop);
+    else {
+        ctx.fillStyle = "white"; ctx.font = "30px Courier";
+        ctx.fillText("GAME OVER", 192, 112);
+    }
+}
+
+// 🛠️ 버튼 조작 로직
+function bind(id, down, up) {
+    const el = document.getElementById(id);
+    const start = 'ontouchstart' in window ? 'touchstart' : 'mousedown';
+    const end = 'ontouchend' in window ? 'touchend' : 'mouseup';
+    el.addEventListener(start, (e) => { e.preventDefault(); down(); }, {passive: false});
+    el.addEventListener(end, (e) => { e.preventDefault(); up(); }, {passive: false});
+}
+
+bind("left", () => p1.vx = -3, () => p1.vx = 0);
+bind("right", () => p1.vx = 3, () => p1.vx = 0);
+bind("atk", () => { if (p1.state === "idle") { p1.state = "attack"; p1.frameIndex = 0; } }, () => {});
+
+startBtn.addEventListener("click", () => { document.getElementById("overlay").remove(); requestAnimationFrame(loop); });
+startBtn.addEventListener("touchstart", (e) => { e.preventDefault(); document.getElementById("overlay").remove(); requestAnimationFrame(loop); });
+</script>
+</body>
+</html>

@@ -3,78 +3,79 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Master Sync</title>
+    <title>Nexus Strike: Street Legacy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#ec5b13", "accent": "#00f2ff", "bg-dark": "#0a0a0c" } } } }
     </script>
     <style>
-        /* 🛠️ 해결: 100dvh 및 터치 최적화 */
+        /* 🛠️ 해결: 100dvh 모바일 최적화 레이아웃 */
         html, body { height: 100dvh; margin: 0; padding: 0; background: #0a0a0c; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
         canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; image-rendering: pixelated; object-fit:contain; }
-        #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: auto; }
+        #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: none; }
+        .interactive { pointer-events: auto; }
         .btn:active { background: #00f2ff !important; color: #000 !important; transform: scale(0.9); box-shadow: 0 0 20px #00f2ff; }
     </style>
 </head>
 <body class="bg-bg-dark text-white select-none">
 
     <div id="loading-gate" class="fixed inset-0 z-[200] bg-bg-dark flex flex-col items-center justify-center">
-        <div class="w-48 h-1 bg-white/10 rounded-full mb-4 overflow-hidden"><div id="load-bar" class="h-full bg-accent transition-all duration-300" style="width: 0%"></div></div>
-        <p class="text-accent text-sm font-black italic animate-pulse">Establishing Combat Link...</p>
+        <div class="w-64 h-1 bg-white/10 rounded-full mb-4 overflow-hidden"><div id="load-bar" class="h-full bg-accent transition-all duration-300" style="width: 0%"></div></div>
+        <p class="text-accent text-sm font-black italic animate-pulse tracking-widest">SYNCHRONIZING COMBAT DATA...</p>
     </div>
 
     <div id="vs-screen" class="hidden interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
-        <h1 class="text-5xl font-black italic text-accent mb-12">NEXUS STRIKE</h1>
+        <h1 class="text-6xl font-black italic text-accent mb-12 tracking-tighter">NEXUS STRIKE</h1>
         <div class="flex gap-10 items-center mb-12">
             <div class="text-center">
-                <div class="size-40 border-2 border-accent rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM');"></div>
-                <h2 class="text-2xl font-black mt-4 text-accent">NINJA</h2>
+                <div class="size-48 border-2 border-accent rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(0,242,255,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM');"></div>
+                <h2 class="text-3xl font-black mt-4 text-accent">NINJA</h2>
             </div>
-            <div class="text-4xl font-black italic text-primary">VS</div>
+            <div class="text-5xl font-black italic text-white italic">VS</div>
             <div class="text-center">
-                <div class="size-40 border-2 border-primary rounded-xl bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk');"></div>
-                <h2 class="text-2xl font-black mt-4 text-primary">RYU</h2>
+                <div class="size-48 border-2 border-primary rounded-2xl bg-cover bg-center shadow-[0_0_40px_rgba(236,91,19,0.4)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk');"></div>
+                <h2 class="text-3xl font-black mt-4 text-primary">RYU</h2>
             </div>
         </div>
-        <button id="start-btn" class="px-16 py-6 bg-accent text-black font-black text-2xl rounded shadow-[0_0_40px_#00f2ff] uppercase italic">Neural Connect</button>
+        <button id="start-btn" class="px-20 py-8 bg-accent text-black font-black text-2xl rounded-xl shadow-[0_0_60px_#00f2ff] uppercase italic hover:scale-105 transition">Engage Battle</button>
     </div>
 
     <div id="ui-layer" class="hidden">
-        <div id="hud" class="absolute top-6 inset-x-8 flex justify-between pointer-events-none">
-            <div class="w-[40%]">
-                <div class="flex justify-between font-black italic text-[10px] text-accent mb-1"><span>P1: NINJA</span><span id="p1-hp-txt">100%</span></div>
-                <div class="h-4 bg-black border border-accent/30"><div id="p1-hp" class="h-full bg-accent" style="width: 100%"></div></div>
+        <div id="hud" class="absolute top-6 inset-x-10 flex justify-between pointer-events-none">
+            <div class="w-[42%]">
+                <div class="flex justify-between font-black italic text-[11px] text-accent mb-1"><span>P1: NINJA</span><span id="p1-hp-txt">100%</span></div>
+                <div class="h-5 bg-black border border-accent/40 rounded-sm overflow-hidden"><div id="p1-hp" class="h-full bg-accent transition-all duration-300" style="width: 100%"></div></div>
             </div>
-            <div class="bg-black/80 border-x-4 border-accent px-6 py-1"><h2 id="timer" class="text-accent text-4xl font-black italic">99</h2></div>
-            <div class="w-[40%] text-right">
-                <div class="flex justify-between flex-row-reverse font-black italic text-[10px] text-primary mb-1"><span>CPU: RYU</span><span id="p2-hp-txt">100%</span></div>
-                <div class="h-4 bg-black border border-primary/30 flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-primary" style="width: 100%"></div></div>
+            <div class="bg-black/90 border-x-4 border-accent px-8 py-1"><h2 id="timer" class="text-accent text-5xl font-black italic">99</h2></div>
+            <div class="w-[42%] text-right">
+                <div class="flex justify-between flex-row-reverse font-black italic text-[11px] text-primary mb-1"><span>CPU: RYU</span><span id="p2-hp-txt">100%</span></div>
+                <div class="h-5 bg-black border border-primary/40 rounded-sm overflow-hidden flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-primary transition-all duration-300" style="width: 100%"></div></div>
             </div>
         </div>
 
-        <div id="controls" class="absolute bottom-14 inset-x-8 flex justify-between items-end">
-            <div class="grid grid-cols-3 gap-3">
-                <div></div><button id="up" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▲</button><div></div>
-                <button id="left" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">◀</button>
-                <button id="down" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▼</button>
-                <button id="right" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▶</button>
+        <div id="controls" class="absolute bottom-12 inset-x-10 flex justify-between items-end">
+            <div class="grid grid-cols-3 gap-4 interactive">
+                <div></div><button id="up" class="btn size-18 bg-white/5 border border-white/20 rounded-2xl text-white">▲</button><div></div>
+                <button id="left" class="btn size-18 bg-white/5 border border-white/20 rounded-2xl text-white">◀</button>
+                <button id="down" class="btn size-18 bg-white/5 border border-white/20 rounded-2xl text-white">▼</button>
+                <button id="right" class="btn size-18 bg-white/5 border border-white/20 rounded-2xl text-white">▶</button>
             </div>
-            <div class="flex gap-6">
-                <button id="btn-p" class="btn size-20 rounded-full border-4 border-accent bg-black/60 text-accent font-black italic text-2xl">P</button>
-                <button id="btn-k" class="btn size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black italic text-2xl">K</button>
+            <div class="flex gap-8 interactive">
+                <button id="btn-p" class="btn size-24 rounded-full border-4 border-accent bg-black/70 text-accent font-black italic text-3xl">P</button>
+                <button id="btn-k" class="btn size-24 rounded-full border-4 border-primary bg-black/70 text-primary font-black italic text-3xl">K</button>
             </div>
         </div>
     </div>
 
-    <canvas id="game" width="384" height="224"></canvas>
+    <canvas id="game" width="512" height="288"></canvas>
 
     <script>
         const canvas = document.getElementById("game");
         const ctx = canvas.getContext("2d");
-        const GROUND_Y = 195;
-        const GRAVITY = 0.6;
-        const DRAW_SIZE = 100; // 🛠️ 해결: 캐릭터 크기 대폭 키움
+        const GROUND_Y = 255; // 🛠️ 해결: 캔버스 높이에 맞춰 지면 재설정
+        const GRAVITY = 0.65;
+        const DRAW_SIZE = 180; // 🛠️ 해결: 전신 캐릭터용 거대 사이즈
         const heldKeys = new Set();
         let hitstop = 0, active = false;
 
@@ -89,9 +90,9 @@
         const check = () => { loaded++; document.getElementById("load-bar").style.width = (loaded/3)*100 + "%"; if (loaded === 3) { document.getElementById("loading-gate").classList.add("hidden"); document.getElementById("vs-screen").classList.remove("hidden"); } };
         P1_SHEET.onload = P2_SHEET.onload = BG_IMG.onload = check;
         
-        P1_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM"; // 닌자 시트
-        P2_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk"; // 라이벌 시트
-        BG_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBdXOXbdlxfv2UK10TPfwto_aSTrzz3gPYFk0_IsVF0uWAYx8XE7j5s1TYIRJKhikoTFfggACAk0P7iNLM5_u1sOfG5L-3Fau4_Mef_i2pmZMIKwKXsxA1Lq97RLyDVRXFePPJAd9NaaTYNDjQj9zDXk7tzO9PXU4GrbIzuF45-LbiRkSNHb9fwThVxs7oPiS0XvdSXBUu8PwJs9H4rscAnaTUUdxIRvPlyRh8IYj5gHfD6RXRnmNxzAblN2NPbWSlIVMbUV3v3YcI"; // 배경
+        P1_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM"; 
+        P2_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk"; 
+        BG_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBdXOXbdlxfv2UK10TPfwto_aSTrzz3gPYFk0_IsVF0uWAYx8XE7j5s1TYIRJKhikoTFfggACAk0P7iNLM5_u1sOfG5L-3Fau4_Mef_i2pmZMIKwKXsxA1Lq97RLyDVRXFePPJAd9NaaTYNDjQj9zDXk7tzO9PXU4GrbIzuF45-LbiRkSNHb9fwThVxs7oPiS0XvdSXBUu8PwJs9H4rscAnaTUUdxIRvPlyRh8IYj5gHfD6RXRnmNxzAblN2NPbWSlIVMbUV3v3YcI"; 
 
         class Fighter {
             constructor(x, id, sheet, isPlayer) {
@@ -104,7 +105,7 @@
 
             takeDamage(amt, attacker) {
                 this.hp = Math.max(0, this.hp - amt); this.state = "hit";
-                this.vx = attacker.facing * 8; hitstop = 5;
+                this.vx = attacker.facing * 12; hitstop = 7; // 넉백 강화
                 sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
                 document.getElementById(this.isPlayer ? "p1-hp" : "p2-hp-bar").style.width = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
@@ -114,23 +115,23 @@
                 if (this.isPlayer) {
                     if (!["punch", "kick", "hit"].includes(this.state)) {
                         const L = heldKeys.has("Left"), R = heldKeys.has("Right");
-                        if (L) { this.vx = -5; this.state = "walk"; }
-                        else if (R) { this.vx = 5; this.state = "walk"; }
+                        if (L) { this.vx = -6; this.state = "walk"; }
+                        else if (R) { this.vx = 6; this.state = "walk"; }
                         else { this.vx = 0; this.state = "idle"; }
-                        if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -13; this.state = "jump"; }
+                        if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -16; this.state = "jump"; }
                     }
                 } else {
                     const d = Math.abs(this.x - opponent.x);
-                    if (d > 75) { this.vx = this.x < opponent.x ? 1.8 : -1.8; this.state = "walk"; }
+                    if (d > 110) { this.vx = this.x < opponent.x ? 2.5 : -2.5; this.state = "walk"; }
                     else { this.vx = 0; if(Math.random() < 0.04) this.attack(opponent, "punch"); else this.state = "idle"; }
                 }
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; if(this.state === "jump") this.state = "idle"; }
-                this.x = Math.max(30, Math.min(354, this.x));
+                this.x = Math.max(40, Math.min(472, this.x));
                 this.facing = this.x < opponent.x ? 1 : -1;
 
-                if (Date.now() - this.timer > 80) {
+                if (Date.now() - this.timer > 70) { // 민첩한 프레임
                     this.frame = (this.frame + 1) % FRAME_COUNTS[this.state];
                     this.timer = Date.now();
                     if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
@@ -140,10 +141,11 @@
             attack(target, type) {
                 if (["punch", "kick"].includes(this.state)) return;
                 this.state = type; this.frame = 0;
-                if (Math.abs(this.x - target.x) < 70) target.takeDamage(10, this);
+                // 🛠️ 해결: 거대해진 몸집에 맞게 공격 사거리 확장
+                if (Math.abs(this.x - target.x) < 110) target.takeDamage(10, this);
             }
 
-            // 🛠️ 해결: 시트 크기 기반 정밀 드로잉 (실종 방지)
+            // 🛠️ 해결: 비율 유지 및 지면 밀착 드로잉
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
                 if (this.sheet.complete && this.sheet.width > 0) {
@@ -151,10 +153,15 @@
                     const sh = this.sheet.height / 8;
                     const sy = ANIMS[this.state] * sh;
                     const sx = this.frame * sw;
-                    ctx.drawImage(this.sheet, sx, sy, sw, sh, -DRAW_SIZE/2, -DRAW_SIZE, DRAW_SIZE, DRAW_SIZE);
+                    
+                    const charHeight = DRAW_SIZE;
+                    const charWidth = DRAW_SIZE * (sw/sh); // 🛠️ 해결: 비율 자동 계산
+                    
+                    // 🛠️ 해결: 발바닥을 기준으로 땅에 붙여 그리기
+                    ctx.drawImage(this.sheet, sx, sy, sw, sh, -charWidth/2, -charHeight, charWidth, charHeight);
                 } else {
                     ctx.fillStyle = this.isPlayer ? "#00f2ff" : "#ec5b13";
-                    ctx.fillRect(-20, -70, 40, 70);
+                    ctx.fillRect(-25, -120, 50, 120);
                 }
                 ctx.restore();
             }
@@ -163,7 +170,7 @@
         let p1, p2;
         function loop() {
             if (hitstop > 0) { hitstop--; requestAnimationFrame(loop); return; }
-            ctx.drawImage(BG_IMG, 0, 0, 384, 224);
+            ctx.drawImage(BG_IMG, 0, 0, 512, 288);
             p1.update(p2); p2.update(p1);
             p1.draw(); p2.draw();
             if (active) requestAnimationFrame(loop);
@@ -181,8 +188,8 @@
             setTimeout(() => {
                 document.getElementById("vs-screen").remove();
                 document.getElementById("ui-layer").classList.remove("hidden");
-                p1 = new Fighter(80, "NINJA", P1_SHEET, true); 
-                p2 = new Fighter(300, "RYU", P2_SHEET, false);
+                p1 = new Fighter(120, "NINJA", P1_SHEET, true); 
+                p2 = new Fighter(390, "RYU", P2_SHEET, false);
                 bind("left", "Left"); bind("right", "Right"); bind("up", "Up"); bind("down", "Down");
                 document.getElementById("btn-p").onpointerdown = () => p1.attack(p2, "punch");
                 document.getElementById("btn-k").onpointerdown = () => p1.attack(p2, "kick");

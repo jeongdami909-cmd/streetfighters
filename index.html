@@ -1,218 +1,58 @@
-<!DOCTYPE html>
-<html lang="ko" class="dark">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>NEXUS STRIKE: AI CHALLENGE</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-<style>
-    body { margin: 0; background: #101922; overflow: hidden; touch-action: none; font-family: 'Space Grotesk', sans-serif; }
-    canvas { image-rendering: pixelated; object-fit: contain; width: 100vw; height: 100vh; display: block; filter: contrast(1.1); }
-    
-    /* 🛠️ 선택 화면 테마를 반영한 오버레이 */
-    #overlay { position: fixed; inset: 0; background: rgba(16,25,34,0.98); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #258cf4; border: 8px solid rgba(37,140,244,0.1); }
-    .start-btn { padding: 25px 80px; font-size: 2rem; background: #258cf4; color: white; border: none; border-radius: 12px; font-weight: 900; italic: true; box-shadow: 0 10px 40px rgba(37,140,244,0.5); cursor: pointer; transition: 0.2s; }
-    .start-btn:active { transform: scale(0.95); }
-
-    /* 조작 컨트롤러 */
-    #controls { position: fixed; bottom: 40px; width: 100%; display: flex; justify-content: space-between; padding: 0 40px; z-index: 500; pointer-events: none; }
-    .btn-group { display: grid; gap: 12px; pointer-events: auto; }
-    .btn { 
-        width: 75px; height: 75px; background: rgba(37,140,244,0.1); border: 3px solid #258cf4; border-radius: 15px;
-        color: #258cf4; display: flex; align-items: center; justify-content: center; font-weight: 900;
-        user-select: none; -webkit-tap-highlight-color: transparent; 
+// 🛠️ 튜토리얼 6편의 상태 머신을 확장한 캐릭터 데이터셋
+const ROSTER = {
+    ZERO: {
+        name: "Zero",
+        class: "Cyber-Ninja",
+        power: 80,
+        speed: 95,
+        tech: 70,
+        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1",
+        desc: "A rogue operative from the Sector 7 slums..."
+    },
+    KAEL: {
+        name: "Kael",
+        class: "Mecha Pilot",
+        power: 90,
+        speed: 70,
+        tech: 85,
+        img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDyN5PM6BYs-NzlWDJl8McRKM9hFOB5pxrVBsDYZx1G08tI0zUeJJoovQAvnfsWrnDV6OXOMeQBElouQkLzIQXYvRXvjvTXNJrurWWcQASjvs_zy_nota8D-VLrBxqJtMMg0gs37ciwO5YRQKtMkIfoAucQ_frzgt3yeoyAYR9NvgxzIl4lH2ZJ_PkplT1cNGwDIUiRNy8gdf6dGrDOJH4VmRMOFCp-yKyBeGjA7-8_DMhro5o5e0G1_y0qBMGmMoeSxzZbPnBk7xO1",
+        desc: "Ex-military pilot with a prototype exoskeleton."
     }
-    .btn:active { background: #258cf4; color: white; box-shadow: 0 0 20px #258cf4; }
-    .btn-red { border-color: #ef4444; color: #ef4444; }
-    .btn-red:active { background: #ef4444; color: white; box-shadow: 0 0 20px #ef4444; }
-</style>
-</head>
-<body>
-
-<div id="overlay">
-    <div class="mb-8 text-center">
-        <h1 class="text-6xl font-black italic tracking-tighter uppercase text-white">KAI <span class="text-primary">VS</span> BRUNO</h1>
-        <p class="text-primary tracking-widest mt-2">AI CHALLENGE MODE : ROUND 1</p>
-    </div>
-    <button id="start-btn" class="start-btn">ENGAGE FIGHT</button>
-</div>
-
-<canvas id="game" width="384" height="224"></canvas>
-
-<div id="controls">
-    <div class="btn-group" style="grid-template-columns: repeat(3, 1fr);">
-        <div style="grid-column: 2"><div class="btn" id="up">UP</div></div>
-        <div style="grid-column: 1"><div class="btn" id="left">◀</div></div>
-        <div style="grid-column: 3"><div class="btn" id="right">▶</div></div>
-    </div>
-    <div class="btn-group" style="grid-template-columns: repeat(2, 1fr);">
-        <div class="btn" id="lp">LP</div>
-        <div class="btn btn-red" id="sp">SP</div>
-        <div class="btn" id="lk">LK</div>
-        <div class="btn" id="hk">HK</div>
-    </div>
-</div>
-
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const GROUND_Y = 195;
-const GRAVITY = 0.6;
-
-// 자산 로드 (사용자 제공 이미지 매핑)
-const IMAGES = {
-    bg: new Image(),
-    kai: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
-    bruno: new Image()
-};
-IMAGES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC4FeZ34s6B8cMopF2IaZyxtIGBeNsb2oErNLpxO-qxnAaW3crKxVHRWVkwG3D_0YwbL91E_SrvuN4CyGbS249MI6TZZAkOD1u3ZGU-cR-b1xclhmlLhbstmX8zeNL27HqJUJe89S-24yOp8zuq4hd0k6IlZQ-xe0Aphws4VpTMCfSZAHDiiGjSe9ebZf5bXr9yAtx9Dn8JQ-5iXi0BukAM1unvr7q8NsTFUoiMiocZUmEx0rPXlbEIiH9QR-RlB-G-V7l8Bnlqxc5C";
-IMAGES.bruno.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
-
-const sounds = {
-    hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
-    bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
 };
 
-const heldKeys = new Set();
-const ANIMS = { idle: [0], walk: [1, 2], jump: [3], punch: [4, 5], kick: [6, 7], special: [8, 9, 10], hit: [0] };
+let selectedHero = "ZERO";
 
-class Fighter {
-    constructor(x, id, isPlayer) {
-        this.x = x; this.y = GROUND_Y;
-        this.vx = 0; this.vy = 0;
-        this.hp = 100; this.id = id;
-        this.currentState = "idle";
-        this.frameIndex = 0; this.animTimer = 0;
-        this.facing = isPlayer ? 1 : -1;
-        this.isPlayer = isPlayer;
-        this.isHit = false;
-    }
+// 1. UI 인터랙션: 카드 클릭 시 정보 업데이트
+document.querySelectorAll('.character-card').forEach(card => {
+    card.onclick = () => {
+        const heroKey = card.dataset.hero; // HTML에 data-hero="ZERO" 추가 필요
+        selectedHero = heroKey;
+        const data = ROSTER[heroKey];
 
-    // 🛠️ SF AI 로직: 거리 기반 의사결정
-    updateAI(opponent, time) {
-        if (this.isHit || ["punch","kick","special"].includes(this.currentState)) return;
+        // 텍스트 및 게이지 업데이트 (Tailwind 클래스 활용)
+        document.getElementById('hero-name').innerText = data.name;
+        document.getElementById('hero-class').innerText = data.class;
+        document.getElementById('hero-desc').innerText = data.desc;
+        document.getElementById('bar-power').style.width = data.power + "%";
+        document.getElementById('bar-speed').style.width = data.speed + "%";
         
-        const dist = Math.abs(this.x - opponent.x);
-        
-        if (dist > 70) {
-            // 적군 추격
-            this.vx = this.x < opponent.x ? 2 : -2;
-            this.currentState = "walk";
-        } else {
-            // 공격 범위 내 진입 시 랜덤 공격
-            this.vx = 0;
-            if (Math.random() < 0.03) { // 3% 확률로 공격 발동
-                this.attack(opponent, Math.random() > 0.5 ? "punch" : "kick");
-            } else {
-                this.currentState = "idle";
-            }
-        }
-    }
-
-    attack(opponent, type) {
-        this.currentState = type;
-        this.frameIndex = 0;
-        if (Math.abs(this.x - opponent.x) < 55) {
-            opponent.takeDamage(8);
-        }
-    }
-
-    takeDamage(amt) {
-        this.hp = Math.max(0, this.hp - amt);
-        this.isHit = true;
-        sounds.hit.currentTime = 0; sounds.hit.play().catch(()=>{});
-        setTimeout(() => this.isHit = false, 300);
-    }
-
-    update(time, opponent) {
-        if (this.isPlayer) {
-            if (this.currentState !== "jump" && !["punch","kick","special"].includes(this.currentState)) {
-                if (heldKeys.has("Left")) { this.vx = -3.5; this.currentState = "walk"; }
-                else if (heldKeys.has("Right")) { this.vx = 3.5; this.currentState = "walk"; }
-                else { this.vx = 0; this.currentState = "idle"; }
-                if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -12; this.currentState = "jump"; }
-            }
-        } else {
-            this.updateAI(opponent, time);
-        }
-
-        this.vy += GRAVITY;
-        this.x += this.vx; this.y += this.vy;
-        if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; if (this.currentState === "jump") this.currentState = "idle"; }
-        this.x = Math.max(20, Math.min(364, this.x));
-        this.facing = this.x < opponent.x ? 1 : -1;
-
-        if (time - this.animTimer > 100) {
-            const seq = ANIMS[this.currentState];
-            this.frameIndex = (this.frameIndex + 1) % seq.length;
-            this.animTimer = time;
-            if (this.frameIndex === 0 && ["punch","kick","special"].includes(this.currentState)) this.currentState = "idle";
-        }
-    }
-
-    draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.scale(this.facing, 1);
-        const img = this.isPlayer ? IMAGES.kai[ANIMS[this.currentState][this.frameIndex]] : IMAGES.bruno;
-        if (this.isHit) ctx.filter = "brightness(3) contrast(1.5)";
-        ctx.drawImage(img, -32, -64, 64, 64);
-        ctx.restore();
-    }
-}
-
-let p1, p2;
-function drawHUD() {
-    // 🛠️ 넥서스 스타일 HUD 구현
-    const barW = 140;
-    ctx.fillStyle = "#101922"; ctx.fillRect(20, 20, barW, 12); ctx.fillRect(224, 20, barW, 12);
-    ctx.fillStyle = "#258cf4"; ctx.fillRect(20, 20, (p1.hp/100)*barW, 12); // KAI HP
-    ctx.fillStyle = "#ef4444"; ctx.fillRect(364, 20, -(p2.hp/100)*barW, 12); // BRUNO HP
-    
-    ctx.fillStyle = "white"; ctx.font = "bold 10px Space Grotesk"; ctx.textAlign = "left";
-    ctx.fillText("KAI", 20, 15); ctx.textAlign = "right"; ctx.fillText("BRUNO", 364, 15);
-    ctx.textAlign = "center"; ctx.font = "bold 18px Space Grotesk"; ctx.fillText("99", 192, 30);
-}
-
-function loop(t) {
-    ctx.drawImage(IMAGES.bg, 0, 0, 384, 224);
-    p1.update(t, p2); p2.update(t, p1);
-    p1.draw(); p2.draw();
-    drawHUD();
-    if (p1.hp > 0 && p2.hp > 0) requestAnimationFrame(loop);
-}
-
-function bind(id, code) {
-    const el = document.getElementById(id);
-    const down = (e) => { e.preventDefault(); heldKeys.add(code); };
-    const up = (e) => { e.preventDefault(); heldKeys.delete(code); };
-    el.addEventListener('touchstart', down, {passive: false});
-    el.addEventListener('touchend', up, {passive: false});
-    el.addEventListener('mousedown', start); el.addEventListener('mouseup', end);
-}
-
-document.getElementById("start-btn").onclick = () => {
-    p1 = new Fighter(80, "KAI", true);
-    p2 = new Fighter(304, "BRUNO", false);
-    
-    const b = (id, code) => {
-        const el = document.getElementById(id);
-        el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(code); };
-        el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(code); };
+        // 사운드 효과 (지익- 하는 사이버틱한 소리 추천)
+        new Audio('https://actions.google.com/sounds/v1/ui/beep_short.ogg').play().catch(()=>{});
     };
-    b("left", "Left"); b("right", "Right"); b("up", "Up");
-    
-    const act = (type) => { if(p1.currentState === "idle") p1.attack(p2, type); };
-    document.getElementById("lp").onpointerdown = () => act("punch");
-    document.getElementById("lk").onpointerdown = () => act("kick");
-    document.getElementById("hk").onpointerdown = () => act("kick");
-    document.getElementById("sp").onpointerdown = () => act("special");
+});
 
-    sounds.bgm.loop = true; sounds.bgm.play().catch(()=>{});
-    document.getElementById("overlay").remove();
-    requestAnimationFrame(loop);
+// 2. 결정적 순간: 'Lock Selection' 클릭 시 전투 엔진 시동
+document.getElementById('lock-btn').onclick = () => {
+    const finalChoice = ROSTER[selectedHero];
+    
+    // 전투 엔진(Fighter 클래스)에 스탯 전달
+    p1 = new Fighter(80, finalChoice.name, true);
+    p1.applyStats(finalChoice); // 파워와 스피드를 엔진에 주입!
+    
+    // 화면 전환 애니메이션 (Fade Out) 후 게임 루프 시작
+    document.getElementById('selection-screen').classList.add('opacity-0');
+    setTimeout(() => {
+        document.getElementById('selection-screen').remove();
+        requestAnimationFrame(loop);
+    }, 500);
 };
-</script>
-</body>
-</html>

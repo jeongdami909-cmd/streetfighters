@@ -3,124 +3,135 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>STREET CODING FIGHTER v18.0</title>
+<title>STREET CODING FIGHTER v19.0</title>
 <style>
     canvas { image-rendering: pixelated; object-fit: contain; width: 100%; height: 100%; background: #000; }
     body { margin: 0; background: #000; overflow: hidden; touch-action: none; display: flex; align-items: center; justify-content: center; height: 100vh; }
-    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
-    #start-btn { padding: 20px 60px; font-size: 2rem; background: #ff4444; color: white; border: 4px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 30px #ff4444; font-weight: bold; }
+    #overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: #ffcc33; font-family: 'Courier New', monospace; }
+    #start-btn { padding: 20px 80px; font-size: 2.5rem; background: #ff4444; color: white; border: 5px solid #fff; border-radius: 50px; cursor: pointer; box-shadow: 0 0 40px #ff4444; font-weight: bold; }
     #controls { position: fixed; bottom: 30px; width: 100%; display: flex; justify-content: space-around; z-index: 500; pointer-events: none; }
-    .btn { width: 85px; height: 85px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.1rem; user-select: none; -webkit-tap-highlight-color: transparent; }
+    .btn { width: 90px; height: 90px; background: rgba(255,255,255,0.2); border: 4px solid #fff; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; pointer-events: auto; font-size: 1.2rem; user-select: none; -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body>
 
 <div id="overlay">
-    <h1 style="font-size: 2.5rem; text-shadow: 0 0 20px red;">STATE MACHINE ENGINE</h1>
-    <p>Part 5: Advanced Logic & Moveset</p>
+    <h1 style="font-size: 3rem; text-shadow: 0 0 30px red; margin: 0;">STREET CODING</h1>
+    <p style="letter-spacing: 3px;">Part 6: Advanced Input & Shadows</p>
     <button id="start-btn">FIGHT!</button>
 </div>
 
 <canvas id="game" width="384" height="224"></canvas>
 
 <div id="controls">
-    <div class="btn" id="btn-jump">JUMP</div>
-    <div class="btn" id="btn-left">LEFT</div>
-    <div class="btn" id="btn-atk">ATK</div>
-    <div class="btn" id="btn-right">RIGHT</div>
-    <div class="btn" id="btn-crouch">CROUCH</div>
+    <div class="btn" id="left">LEFT</div>
+    <div class="btn" id="atk">ATK</div>
+    <div class="btn" id="right">RIGHT</div>
+    <div class="btn" id="jump">JUMP</div>
 </div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 const GROUND_Y = 190;
-const GRAVITY = 0.6; // 튜토리얼 5편의 중력 시스템
+const GRAVITY = 0.6;
 
-// 튜토리얼 5편 기반: 애니메이션 및 프레임 데이터
+// 🛠️ 튜토리얼 6편: 입력 핸들러 (지속 입력 추적)
+const heldKeys = new Set();
+window.addEventListener("keydown", (e) => heldKeys.add(e.code));
+window.addEventListener("keyup", (e) => heldKeys.delete(e.code));
+
 const ANIMS = {
-    idle: ["🧑‍💻", "👨‍💻"],
-    walk: ["🏃", "🚶", "🏃", "🚶"],
-    jump: ["🆙", "✈️", "🆙"],
-    crouch: ["🧘"],
-    attack: ["👊", "🤜"],
-    hit: ["🤕"]
+    p1: { idle: ["🧑‍💻", "👨‍💻"], walk: ["🏃", "🚶"], jump: ["✈️"], attack: ["👊", "🤜"], hit: ["🤕"] },
+    p2: { idle: ["👾", "💀"], walk: ["👣", "💀"], jump: ["🛸"], attack: ["💥", "🔥"], hit: ["😵"] }
 };
 
 class Fighter {
-    constructor(x, id) {
+    constructor(x, id, config) {
         this.x = x; this.y = GROUND_Y;
         this.vx = 0; this.vy = 0;
         this.hp = 100;
         this.id = id;
+        this.config = config;
+        this.currentState = "idle";
         this.frameIndex = 0;
         this.animTimer = 0;
-        
-        // 🛠️ 튜토리얼 5편의 핵심: 상태 머신 정의
-        this.currentState = "idle";
-        this.states = {
-            idle: { validFrom: ["walk", "jump", "crouch", "attack"], init: () => { this.vx = 0; this.vy = 0; } },
-            walk: { validFrom: ["idle"], init: (dir) => { this.vx = dir * 3; } },
-            jump: { validFrom: ["idle", "walk"], init: () => { this.vy = -12; } },
-            crouch: { validFrom: ["idle"], init: () => { this.vx = 0; } },
-            attack: { validFrom: ["idle", "walk"], init: () => { this.vx = 0; } }
-        };
+        this.facing = id === "P1" ? 1 : -1;
     }
 
-    // 상태 전환 함수 (무결성 검사 포함)
-    changeState(newState, arg) {
-        if (this.currentState === newState) return;
-        if (!this.states[newState].validFrom.includes(this.currentState)) return;
-
-        this.currentState = newState;
-        this.frameIndex = 0;
-        this.states[newState].init(arg);
-    }
-
+    // 🛠️ 튜토리얼 6편: 상태 머신 고도화
     update(time, opponent) {
-        // 물리 연산 (중력)
+        // 입력 상태에 따른 상태 전환
+        if (this.currentState !== "jump" && this.currentState !== "hit" && this.currentState !== "attack") {
+            if (heldKeys.has(this.id === "P1" ? "ArrowLeft" : "KeyA")) {
+                this.currentState = "walk";
+                this.vx = -3;
+            } else if (heldKeys.has(this.id === "P1" ? "ArrowRight" : "KeyD")) {
+                this.currentState = "walk";
+                this.vx = 3;
+            } else {
+                this.currentState = "idle";
+                this.vx = 0;
+            }
+
+            if (heldKeys.has(this.id === "P1" ? "ArrowUp" : "KeyW")) {
+                this.currentState = "jump";
+                this.vy = -12;
+            }
+        }
+
         this.vy += GRAVITY;
         this.x += this.vx;
         this.y += this.vy;
 
-        // 지면 충돌 처리
         if (this.y >= GROUND_Y) {
             this.y = GROUND_Y;
             this.vy = 0;
-            if (this.currentState === "jump") this.changeState("idle");
+            if (this.currentState === "jump") this.currentState = "idle";
         }
 
-        // 애니메이션 프레임 업데이트
+        this.x = Math.max(20, Math.min(364, this.x));
+
+        // 애니메이션 타이머
         if (time - this.animTimer > 100) {
-            this.frameIndex = (this.frameIndex + 1) % ANIMS[this.currentState].length;
+            this.frameIndex = (this.frameIndex + 1) % ANIMS[this.config][this.currentState].length;
             this.animTimer = time;
-            
-            // 공격 종료 시 복귀
-            if (this.currentState === "attack" && this.frameIndex === 0) this.changeState("idle");
+            if (this.currentState === "attack" && this.frameIndex === 0) this.currentState = "idle";
         }
     }
 
     draw() {
         ctx.save();
+        // 🛠️ 튜토리얼 6편: 캐릭터 그림자 (점프 시 거리감 구현)
+        const jumpDist = GROUND_Y - this.y;
+        const shadowScale = Math.max(0.2, 1 - (jumpDist / 100));
+        ctx.globalAlpha = 0.4 * shadowScale;
+        ctx.fillStyle = "black";
+        ctx.beginPath();
+        ctx.ellipse(this.x, GROUND_Y, 20 * shadowScale, 5 * shadowScale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+
         ctx.textAlign = "center"; ctx.textBaseline = "bottom";
-        ctx.font = this.currentState === "crouch" ? "40px Arial" : "60px Arial";
-        
-        const emoji = ANIMS[this.currentState][this.frameIndex];
-        ctx.fillText(emoji, this.x, this.y);
+        ctx.font = "60px Arial";
+        if (this.currentState === "hit") ctx.filter = "brightness(2)";
+        ctx.fillText(ANIMS[this.config][this.currentState][this.frameIndex], this.x, this.y);
         
         // HP 바
-        ctx.fillStyle = "#ff4444"; ctx.fillRect(this.x - 20, this.y - 70, 40, 4);
-        ctx.fillStyle = "#39ff14"; ctx.fillRect(this.x - 20, this.y - 70, (this.hp/100)*40, 4);
+        ctx.filter = "none";
+        ctx.fillStyle = "#444"; ctx.fillRect(this.x - 20, this.y - 75, 40, 4);
+        ctx.fillStyle = this.hp > 30 ? "#39ff14" : "#ff4444";
+        ctx.fillRect(this.x - 20, this.y - 75, (this.hp/100)*40, 4);
         ctx.restore();
     }
 }
 
-const p1 = new Fighter(100, "P1");
-const p2 = new Fighter(280, "P2");
+const p1 = new Fighter(100, "P1", "p1");
+const p2 = new Fighter(280, "P2", "p2");
 
 function loop(timestamp) {
     const sky = ctx.createLinearGradient(0, 0, 0, 224);
-    sky.addColorStop(0, "#1a1a2e"); sky.addColorStop(0.7, "#000"); sky.addColorStop(1, "#6a5acd");
+    sky.addColorStop(0, "#1a1a2e"); sky.addColorStop(0.5, "#000"); sky.addColorStop(1, "#6a5acd");
     ctx.fillStyle = sky;
     ctx.fillRect(0, 0, 384, 224);
 
@@ -129,22 +140,26 @@ function loop(timestamp) {
     requestAnimationFrame(loop);
 }
 
-// 🛠️ 버튼 조작 로직 (상태 머신 연결)
-function bind(id, down, up) {
+// 🛠️ 가상 버튼을 전문 입력 핸들러(Set)와 연결
+function bind(id, code) {
     const el = document.getElementById(id);
-    el.addEventListener('touchstart', (e) => { e.preventDefault(); down(); }, {passive: false});
-    el.addEventListener('touchend', (e) => { e.preventDefault(); up(); }, {passive: false});
+    const down = (e) => { e.preventDefault(); heldKeys.add(code); };
+    const up = (e) => { e.preventDefault(); heldKeys.delete(code); };
+    el.addEventListener('touchstart', down, {passive: false});
+    el.addEventListener('touchend', up, {passive: false});
     el.addEventListener('mousedown', down);
     el.addEventListener('mouseup', up);
 }
 
-bind("btn-left", () => p1.changeState("walk", -1), () => p1.changeState("idle"));
-bind("btn-right", () => p1.changeState("walk", 1), () => p1.changeState("idle"));
-bind("btn-jump", () => p1.changeState("jump"), () => {});
-bind("btn-crouch", () => p1.changeState("crouch"), () => p1.changeState("idle"));
-bind("btn-atk", () => p1.changeState("attack"), () => {});
+bind("left", "ArrowLeft");
+bind("right", "ArrowRight");
+bind("jump", "ArrowUp");
+document.getElementById("atk").onpointerdown = () => { if(p1.currentState !== "attack") { p1.currentState = "attack"; p1.frameIndex = 0; } };
 
-document.getElementById("start-btn").onclick = () => { document.getElementById("overlay").remove(); requestAnimationFrame(loop); };
+document.getElementById("start-btn").onclick = () => { 
+    document.getElementById("overlay").remove(); 
+    requestAnimationFrame(loop); 
+};
 </script>
 </body>
 </html>

@@ -3,14 +3,14 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Alpha Recovery</title>
+    <title>Nexus Strike: True Design</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
         tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#00f2ff", "accent": "#ff00ea", "bg-dark": "#050505" } } } }
     </script>
     <style>
-        /* 🛠️ 해결: 100dvh 및 터치 최적화 */
+        /* 🛠️ 해결: 100dvh로 모바일 최적화 */
         html, body { height: 100dvh; margin: 0; padding: 0; background: #050505; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
         canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; image-rendering: pixelated; object-fit:contain; }
         #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: none; }
@@ -19,38 +19,38 @@
         .btn:active { background: #00f2ff !important; color: #000 !important; transform: scale(0.9); }
     </style>
 </head>
-<body class="text-white select-none">
+<body class="bg-background-dark text-white select-none">
 
     <div id="vs-screen" class="interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
         <h1 class="text-6xl font-black italic text-primary glitch mb-10 italic">NEXUS STRIKE</h1>
-        <div class="flex gap-8 items-center mb-10">
+        <div class="flex gap-10 items-center mb-10">
             <div class="text-center">
-                <img src="https://via.placeholder.com/150/00f2ff/ffffff?text=ZERO" class="size-40 border-2 border-primary rounded-xl shadow-2xl">
+                <div class="size-44 border-2 border-primary rounded-xl overflow-hidden bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1');"></div>
                 <h1 class="text-3xl font-black italic mt-4 text-primary">ZERO</h1>
             </div>
             <div class="text-5xl font-black italic">VS</div>
             <div class="text-center">
-                <img src="https://via.placeholder.com/150/ff00ea/ffffff?text=KAEL" class="size-40 border-2 border-accent rounded-xl shadow-2xl">
+                <div class="size-44 border-2 border-accent rounded-xl overflow-hidden bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq');"></div>
                 <h1 class="text-3xl font-black italic mt-4 text-accent">KAEL</h1>
             </div>
         </div>
-        <button id="start-btn" class="px-16 py-6 bg-primary text-black font-black text-2xl rounded-lg shadow-[0_0_40px_#00f2ff]">ENGAGE RECOVERY</button>
+        <button id="start-btn" class="px-16 py-6 bg-primary text-black font-black text-2xl rounded-lg shadow-[0_0_40px_#00f2ff]">SYSTEM ENGAGE</button>
     </div>
 
     <div id="ui-layer">
-        <div id="hud" class="hidden absolute top-6 inset-x-0 px-8 flex justify-between">
+        <div id="hud" class="hidden absolute top-6 inset-x-8 flex justify-between">
             <div class="w-1/3">
                 <div class="flex justify-between font-black italic text-xs text-primary mb-1"><span>ZERO</span><span id="p1-hp-txt">100%</span></div>
-                <div class="h-4 bg-black/40 border border-white/10 rounded-full overflow-hidden"><div id="p1-hp-bar" class="h-full bg-primary" style="width: 100%"></div></div>
+                <div class="h-4 bg-black/40 border border-white/10 rounded-full overflow-hidden"><div id="p1-hp-bar" class="h-full bg-primary transition-all" style="width: 100%"></div></div>
             </div>
             <div class="bg-black/80 border-x-4 border-primary px-6 py-1"><h2 id="timer" class="text-primary text-4xl font-black italic">99</h2></div>
-            <div class="w-1/3">
+            <div class="w-1/3 text-right">
                 <div class="flex justify-between flex-row-reverse font-black italic text-xs text-accent mb-1"><span>KAEL</span><span id="p2-hp-txt">100%</span></div>
-                <div class="h-4 bg-black/40 border border-white/10 rounded-full overflow-hidden flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-accent" style="width: 100%"></div></div>
+                <div class="h-4 bg-black/40 border border-white/10 rounded-full overflow-hidden flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-accent transition-all" style="width: 100%"></div></div>
             </div>
         </div>
 
-        <div id="controls" class="hidden absolute bottom-12 inset-x-0 px-10 flex justify-between items-end pointer-events-none">
+        <div id="controls" class="hidden absolute bottom-12 inset-x-8 px-8 flex justify-between items-end pointer-events-none">
             <div class="grid grid-cols-3 gap-3 interactive">
                 <div></div><button id="up" class="btn size-16 bg-white/10 rounded-xl border border-white/20 text-white">▲</button><div></div>
                 <button id="left" class="btn size-16 bg-white/10 rounded-xl border border-white/20 text-white">◀</button>
@@ -58,7 +58,7 @@
                 <button id="right" class="btn size-16 bg-white/10 rounded-xl border border-white/20 text-white">▶</button>
             </div>
             <div class="flex gap-6 interactive">
-                <button id="btn-p" class="btn size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black italic">P</button>
+                <button id="btn-p" class="btn size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black italic text-2xl">P</button>
                 <button id="btn-k" class="btn size-20 rounded-full border-4 border-accent bg-black/60 text-accent font-black italic text-2xl">K</button>
             </div>
         </div>
@@ -72,23 +72,26 @@
         const GROUND_Y = 195;
         const GRAVITY = 0.6;
         const heldKeys = new Set();
-        let hitstop = 0, active = false;
+        let hitstop = 0, shake = 0, active = false;
 
-        // 🛠️ 해결: 테스트용 임시 이미지 주입
+        // 🛠️ 진짜 스프라이트 매핑 (막대기 안녕!)
         const SPRITES = {
             bg: new Image(),
-            p1: new Image(),
+            // 13:Idle, 14-15:Walk, 17-18:Punch, 19-20:Kick
+            p1: Array.from({length: 11}, (_, i) => { const img = new Image(); img.src = `http://googleusercontent.com/profile/picture/${13 + i}`; return img; }),
             p2: new Image()
         };
         SPRITES.bg.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A";
-        SPRITES.p1.src = "https://via.placeholder.com/64/00f2ff/ffffff?text=Z"; //
-        SPRITES.p2.src = "https://via.placeholder.com/64/ff00ea/ffffff?text=K"; //
+        SPRITES.p2.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";
+
+        const ANIMS = { idle: [0], walk: [1, 2], punch: [4, 5], kick: [6, 7] };
 
         class Fighter {
-            constructor(x, id, img, color, isPlayer) {
+            constructor(x, id, imgList, isPlayer) {
                 this.x = x; this.y = GROUND_Y;
                 this.vx = 0; this.vy = 0;
-                this.hp = 100; this.id = id; this.img = img; this.color = color;
+                this.hp = 100; this.id = id;
+                this.imgList = imgList;
                 this.state = "idle"; this.frame = 0; this.timer = 0;
                 this.facing = isPlayer ? 1 : -1; this.isPlayer = isPlayer;
                 this.isHit = false;
@@ -96,7 +99,8 @@
 
             takeDamage(amt, attacker) {
                 this.hp = Math.max(0, this.hp - amt); this.state = "hit";
-                this.vx = attacker.facing * 8; hitstop = 5;
+                this.vx = attacker.facing * 8; hitstop = 6; shake = 12;
+                new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg').play().catch(()=>{});
                 document.getElementById(this.isPlayer ? "p1-hp-bar" : "p2-hp-bar").style.width = this.hp + "%";
                 document.getElementById(this.isPlayer ? "p1-hp-txt" : "p2-hp-txt").innerText = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
@@ -104,7 +108,7 @@
 
             update(opponent) {
                 if (this.isPlayer) {
-                    if (!["punch", "hit"].includes(this.state)) {
+                    if (!["punch", "kick", "hit"].includes(this.state)) {
                         const L = heldKeys.has("Left"), R = heldKeys.has("Right");
                         if (L) { this.vx = -4; this.state = "walk"; }
                         else if (R) { this.vx = 4; this.state = "walk"; }
@@ -113,8 +117,8 @@
                     }
                 } else {
                     const d = Math.abs(this.x - opponent.x);
-                    if (d > 70) { this.vx = this.x < opponent.x ? 1.5 : -1.5; this.state = "walk"; }
-                    else { this.vx = 0; if(Math.random() < 0.04) this.attack(opponent); else this.state = "idle"; }
+                    if (d > 70) { this.vx = this.x < opponent.x ? 2 : -2; this.state = "walk"; }
+                    else { this.vx = 0; if(Math.random() < 0.05) this.attack(opponent, "punch"); else this.state = "idle"; }
                 }
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; }
@@ -122,35 +126,34 @@
                 this.facing = this.x < opponent.x ? 1 : -1;
 
                 if (Date.now() - this.timer > 100) {
-                    this.frame = (this.frame + 1) % 2;
+                    this.frame = (this.frame + 1) % ANIMS[this.state].length;
                     this.timer = Date.now();
-                    if (this.state === "punch" && this.frame === 0) this.state = "idle";
+                    if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
                 }
             }
 
-            attack(target) {
-                if (this.state === "punch") return;
-                this.state = "punch"; this.frame = 0;
-                new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg').play().catch(()=>{});
+            attack(target, type) {
+                if (["punch", "kick"].includes(this.state)) return;
+                this.state = type; this.frame = 0;
                 if (Math.abs(this.x - target.x) < 55) target.takeDamage(10, this);
             }
 
-            // 🛠️ 관절 엔진: 이미지가 정지해 있어도 팔다리를 강제로 움직임
+            // 🛠️ 진짜 이미지 드로잉 엔진 (팔다리 움직임 구현)
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
+                if (this.isHit) { ctx.filter = "brightness(4)"; ctx.translate(Math.random()*6-3, 0); }
                 
-                // 캐릭터 베이스 이미지 그리기
-                if (this.isHit) ctx.filter = "brightness(3)";
-                ctx.drawImage(this.img, -32, -64, 64, 64);
-                
-                // 🛠️ 팔다리 오버레이 애니메이션
-                ctx.strokeStyle = "white"; ctx.lineWidth = 4; ctx.lineCap = "round";
-                if (this.state === "punch") {
-                    ctx.beginPath(); ctx.moveTo(0, -45); ctx.lineTo(40, -45); ctx.stroke();
-                } else if (this.state === "walk") {
-                    const walkShift = this.frame === 0 ? 15 : -15;
-                    ctx.beginPath(); ctx.moveTo(0, -20); ctx.lineTo(walkShift, 0); ctx.stroke();
+                // 캐릭터 상태에 맞는 이미지 선택
+                let img;
+                if (this.isPlayer) {
+                    const idx = ANIMS[this.state][this.frame];
+                    img = this.imgList[idx];
+                } else {
+                    img = SPRITES.p2; // 적은 현재 단일 이미지
                 }
+                
+                // 이미지 출력 (64x64 사이즈 최적화)
+                if (img && img.complete) ctx.drawImage(img, -32, -64, 64, 64);
                 ctx.restore();
             }
         }
@@ -158,9 +161,12 @@
         let p1, p2;
         function loop() {
             if (hitstop > 0) { hitstop--; requestAnimationFrame(loop); return; }
+            ctx.save();
+            if (shake > 0) { ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake *= 0.85; }
             ctx.drawImage(SPRITES.bg, 0, 0, 384, 224);
             p1.update(p2); p2.update(p1);
             p1.draw(); p2.draw();
+            ctx.restore();
             if (active) requestAnimationFrame(loop);
         }
 
@@ -176,11 +182,11 @@
                 document.getElementById("vs-screen").remove();
                 document.getElementById("hud").classList.remove("hidden");
                 document.getElementById("controls").classList.remove("hidden");
-                p1 = new Fighter(80, "ZERO", SPRITES.p1, "#00f2ff", true);
-                p2 = new Fighter(300, "KAEL", SPRITES.p2, "#ff00ea", false);
+                p1 = new Fighter(80, "ZERO", SPRITES.p1, true);
+                p2 = new Fighter(300, "KAEL", [], false);
                 bind("left", "Left"); bind("right", "Right"); bind("up", "Up");
-                document.getElementById("btn-p").onpointerdown = () => p1.attack(p2);
-                document.getElementById("btn-k").onpointerdown = () => p1.attack(p2);
+                document.getElementById("btn-p").onpointerdown = () => p1.attack(p2, "punch");
+                document.getElementById("btn-k").onpointerdown = () => p1.attack(p2, "kick");
                 active = true; loop();
             }, 600);
         };

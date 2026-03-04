@@ -2,192 +2,129 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>스트리트 코딩 파이터 v2.0</title>
+    <title>스트리트 코딩 파이터 v3.0</title>
     <style>
         body {
-            background-color: #1e1e1e;
-            color: #fff;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Courier New', monospace;
             text-align: center;
-            margin-top: 30px;
+            overflow: hidden; /* 진동 효과 시 스크롤 방지 */
+            transition: background-color 0.1s;
         }
-        /* 체력바 UI 스타일 */
-        .health-board {
-            display: flex;
-            justify-content: space-around;
-            width: 80%;
-            margin: 0 auto 30px auto;
-            font-size: 1.2rem;
+        /* 화면 흔들림 애니메이션 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            40% { transform: translate(3px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            80% { transform: translate(3px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(1deg); }
+        }
+        .shake { animation: shake 0.3s; }
+        .hit-flash { background-color: #441111; }
+
+        .hp-container { width: 45%; height: 30px; background: #333; border: 2px solid #fff; position: relative; }
+        .hp-bar { height: 100%; background: #00ff00; width: 100%; transition: width 0.3s; }
+        
+        #stage { font-size: 8rem; margin: 50px; position: relative; }
+        #damage-text {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ff4444;
             font-weight: bold;
-        }
-        .hp-container {
-            width: 40%;
-            background-color: #444;
-            border: 3px solid #777;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .hp-bar {
-            height: 25px;
-            background-color: #4CAF50; /* 기본 체력 초록색 */
-            width: 100%;
-            transition: width 0.2s ease-out, background-color 0.2s;
-        }
-        #stage {
-            font-size: 6rem;
-            margin: 30px;
-            height: 120px;
-        }
-        #log {
-            font-size: 1.2rem;
-            color: #ffcc00;
-            height: 30px;
-            margin-bottom: 20px;
+            font-size: 2rem;
+            opacity: 0;
+            transition: opacity 0.3s, top 0.3s;
         }
         #code-input {
-            font-size: 1.8rem;
-            padding: 10px;
-            width: 60%;
-            max-width: 500px;
-            background-color: #2d2d2d;
-            color: #4ec9b0;
-            border: 3px solid #569cd6;
-            border-radius: 8px;
-            text-align: center;
+            font-size: 2rem; padding: 15px; width: 300px;
+            background: #000; color: #00ff00; border: 3px solid #00ff00; outline: none;
         }
-        #code-input:focus { outline: none; border-color: #c586c0; }
-        .instructions { margin-top: 20px; color: #aaa; font-size: 1rem; }
     </style>
 </head>
 <body>
-
-    <h1>🔥 스트리트 코딩 파이터 🔥</h1>
-
-    <div class="health-board">
-        <div style="width: 40%;">
-            <div>🧑‍💻 Player HP</div>
-            <div class="hp-container"><div id="player-hp-bar" class="hp-bar"></div></div>
-        </div>
-        <div style="width: 40%;">
-            <div>👾 Bug HP</div>
-            <div class="hp-container"><div id="enemy-hp-bar" class="hp-bar"></div></div>
-        </div>
+    <h1>STREET CODING FIGHTER v3.0</h1>
+    
+    <div style="display: flex; justify-content: space-around; margin: 20px;">
+        <div class="hp-container"><div id="p-hp" class="hp-bar"></div></div>
+        <div class="hp-container"><div id="e-hp" class="hp-bar"></div></div>
     </div>
 
-    <div id="log">전투를 준비하세요! (명령어 입력 후 Enter)</div>
-    <div id="stage">🧑‍💻 ⚡ 👾</div>
-    
-    <input type="text" id="code-input" placeholder="여기에 코드 입력" autocomplete="off" autofocus>
-    
-    <div class="instructions">
-        사용 가능한 기술 (대소문자 무시): <br><br>
-        <strong>attack()</strong> : 데미지 15<br>
-        <strong>smash()</strong> : 데미지 30<br>
-        <strong>heal()</strong> : 체력 20 회복
+    <div id="stage">
+        <span id="damage-text">-15!</span>
+        <div id="chars">🧑‍💻 vs 👾</div>
     </div>
+
+    <input type="text" id="code-input" placeholder="Type: a, s, h" autofocus>
+    
+    <p style="color: #888; margin-top: 20px;">
+        Commands: <strong>a</strong> (Attack) | <strong>s</strong> (Smash) | <strong>h</strong> (Heal)
+    </p>
 
     <script>
-        // 요소 가져오기
         const input = document.getElementById('code-input');
-        const playerHpBar = document.getElementById('player-hp-bar');
-        const enemyHpBar = document.getElementById('enemy-hp-bar');
+        const pBar = document.getElementById('p-hp');
+        const eBar = document.getElementById('e-hp');
         const stage = document.getElementById('stage');
-        const log = document.getElementById('log');
+        const dmgText = document.getElementById('damage-text');
+        
+        let pHP = 100, eHP = 100;
 
-        // 게임 상태 변수
-        let playerHp = 100;
-        let enemyHp = 100;
-        let isGameOver = false;
-
-        // 기술 목록 (소문자 기준으로 매핑)
-        const skillBook = {
-            "attack()": { type: "attack", damage: 15, effect: "🧑‍💻 👊 💥 👾", msg: "기본 공격 적중!" },
-            "smash()": { type: "attack", damage: 30, effect: "🧑‍💻 🔥🔥🔥 👾", msg: "강력한 스매시!" },
-            "heal()": { type: "heal", amount: 20, effect: "🧑‍💻 ✨💚✨ 👾", msg: "체력 회복!" }
-        };
-
-        // UI 업데이트 함수 (체력바 깎이는 애니메이션 및 색상 변경)
-        function updateUI() {
-            playerHpBar.style.width = playerHp + '%';
-            enemyHpBar.style.width = enemyHp + '%';
-
-            // 체력이 낮아지면 붉은색으로 변경
-            playerHpBar.style.backgroundColor = playerHp <= 30 ? '#f44336' : '#4CAF50';
-            enemyHpBar.style.backgroundColor = enemyHp <= 30 ? '#f44336' : '#4CAF50';
-        }
-
-        // 게임 종료 판정
-        function checkGameOver() {
-            if (playerHp <= 0 || enemyHp <= 0) {
-                isGameOver = true;
-                input.disabled = true; // 입력창 잠금
-                clearInterval(enemyAttackTimer); // 적 공격 중지
-
-                if (playerHp <= 0 && enemyHp <= 0) {
-                    log.innerText = "무승부! 둘 다 쓰러졌습니다.";
-                    stage.innerText = "💀 💦 💀";
-                } else if (enemyHp <= 0) {
-                    log.innerText = "승리! 버그를 완벽히 잡았습니다! 🎉";
-                    stage.innerText = "🧑‍💻 🏆 💀";
-                } else {
-                    log.innerText = "패배... 버그에게 잡아먹혔습니다. 😭";
-                    stage.innerText = "💀 🩸 👾";
-                }
-            }
-        }
-
-        // 적(Enemy)의 자동 공격 로직 (2.5초마다 10 데미지)
-        const enemyAttackTimer = setInterval(() => {
-            if (isGameOver) return;
+        function triggerEffect(isEnemy) {
+            document.body.classList.add('shake');
+            if (isEnemy) document.body.classList.add('hit-flash');
             
-            playerHp = Math.max(0, playerHp - 10);
-            log.innerText = "👾 적의 공격! (-10 HP)";
-            stage.innerText = "🧑‍💻 💥 🤛 👾";
-            
-            updateUI();
-            checkGameOver();
-
-            // 0.5초 뒤 무대 원래대로
             setTimeout(() => {
-                if(!isGameOver) stage.innerText = "🧑‍💻 ⚡ 👾";
+                document.body.classList.remove('shake', 'hit-flash');
+            }, 300);
+        }
+
+        function showDamage(val) {
+            dmgText.innerText = `-${val}!`;
+            dmgText.style.opacity = 1;
+            dmgText.style.top = "-50px";
+            setTimeout(() => {
+                dmgText.style.opacity = 0;
+                dmgText.style.top = "-20px";
             }, 500);
-        }, 2500);
+        }
 
-        // 플레이어 입력 처리 (Enter 키 감지)
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !isGameOver) {
-                // 입력값 정리: 양옆 공백 제거 및 소문자로 변환 (지피티 피드백 반영!)
-                const currentCode = e.target.value.trim().toLowerCase();
-                
-                if (skillBook[currentCode]) {
-                    const skill = skillBook[currentCode];
-                    log.innerText = skill.msg;
-                    stage.innerText = skill.effect;
+            if (e.key === 'Enter') {
+                const cmd = e.target.value.trim().toLowerCase();
+                e.target.value = '';
 
-                    if (skill.type === "attack") {
-                        enemyHp = Math.max(0, enemyHp - skill.damage);
-                    } else if (skill.type === "heal") {
-                        playerHp = Math.min(100, playerHp + skill.amount);
-                    }
-                } else {
-                    // 오타 났을 때 (패널티 느낌)
-                    log.innerText = "❌ Syntax Error! (기술 실패)";
-                    stage.innerText = "🧑‍💻 ❓ 👾";
+                if (cmd === 'a' || cmd === 'atk') {
+                    eHP -= 10;
+                    showDamage(10);
+                    triggerEffect(false);
+                } else if (cmd === 's' || cmd === 'smash') {
+                    eHP -= 25;
+                    showDamage(25);
+                    triggerEffect(false);
+                } else if (cmd === 'h' || cmd === 'heal') {
+                    pHP = Math.min(100, pHP + 20);
                 }
 
-                // 처리 후 입력창 비우기 및 UI 갱신
-                e.target.value = '';
-                updateUI();
-                checkGameOver();
-
-                // 0.5초 뒤 무대 원래대로
-                setTimeout(() => {
-                    if(!isGameOver) stage.innerText = "🧑‍💻 ⚡ 👾";
-                }, 500);
+                pBar.style.width = pHP + '%';
+                eBar.style.width = eHP + '%';
+                
+                if (eHP <= 0) alert("BUG DEFEATED!");
             }
         });
 
+        // 적 자동 공격
+        setInterval(() => {
+            if (pHP > 0 && eHP > 0) {
+                pHP -= 5;
+                pBar.style.width = pHP + '%';
+                triggerEffect(true);
+                if (pHP <= 0) alert("GAME OVER...");
+            }
+        }, 3000);
     </script>
 </body>
 </html>

@@ -2,60 +2,34 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>STREET CODING FIGHTER v9.0 - ARTISTIC REBOOT</title>
+<title>STREET CODING FIGHTER v10.0 - COLLISION</title>
 <style>
-:root {
-    --neon-green: #39ff14;
-    --neon-red: #ff073a;
-    --sunset-gold: #ffcc33;
-    --sunset-purple: #6a5acd;
-}
-body {
-    margin: 0;
-    /* 모네의 노을 느낌을 담은 그라디언트 배경 */
-    background: linear-gradient(180deg, #2c3e50 0%, #000000 70%, #6a5acd 100%);
-    font-family: 'Courier New', monospace;
-    color: white;
-    overflow: hidden;
-    height: 100vh;
-    display: flex; flex-direction: column; align-items: center;
-}
-h1 {
-    margin-top: 20px; font-size: 2.5rem;
-    color: var(--sunset-gold);
-    text-shadow: 0 0 15px var(--neon-red);
-}
-.top-ui { display: flex; justify-content: space-between; width: 90%; padding: 20px; }
-.hp-box { width: 300px; height: 30px; border: 3px solid #fff; background: rgba(0,0,0,0.5); box-shadow: 0 0 20px rgba(255,255,255,0.2); }
-.hp-bar { height: 100%; width: 100%; background: var(--neon-green); transition: width 0.3s; }
-#timer { font-size: 3.5rem; color: var(--sunset-gold); font-weight: bold; }
+:root { --neon-green: #39ff14; --neon-red: #ff073a; --neon-blue: #00f3ff; }
+body { margin: 0; background: #0a0a12; font-family: 'Courier New', monospace; color: white; overflow: hidden; text-align: center; }
+.top-ui { display: flex; justify-content: space-between; padding: 20px 50px; }
+.hp-box { width: 320px; height: 28px; border: 3px solid #fff; background: #000; box-shadow: 0 0 10px #fff; }
+.hp-bar { height: 100%; width: 100%; background: var(--neon-green); transition: width 0.2s; }
 
-#stage { 
-    display: flex; justify-content: space-around; align-items: flex-end; 
-    width: 100%; height: 300px; margin-top: 50px;
-    /* 바닥면에 살짝 반사 효과 */
-    border-bottom: 5px solid rgba(255,255,255,0.1);
-}
-.character { font-size: 9rem; position: relative; transition: transform 0.2s; }
-.character.flipped { transform: scaleX(-1); }
+#stage { display: flex; justify-content: space-around; align-items: flex-end; height: 350px; position: relative; border-bottom: 2px solid #333; }
+.character { font-size: 9rem; position: relative; z-index: 2; }
 
-.input-area { margin-top: 40px; }
-#input {
-    background: rgba(0,0,0,0.8); color: var(--neon-green);
-    border: 4px solid var(--neon-green); padding: 15px; font-size: 1.8rem;
-    width: 500px; text-align: center; border-radius: 10px; outline: none;
-    box-shadow: 0 0 30px var(--neon-green);
-}
-.instructions { color: #aaa; margin-top: 15px; font-size: 1rem; }
+/* 튜토리얼 5편의 시각적 박스 디버깅용 (필요시 사용) */
+.box-debug { position: absolute; border: 1px solid; pointer-events: none; opacity: 0.5; }
+.hurt-box { border-color: yellow; }
+.hit-box { border-color: red; }
+.push-box { border-color: green; }
+
+.hadouken { position: absolute; font-size: 3rem; z-index: 1; text-shadow: 0 0 20px var(--neon-blue); }
+#input { background: #000; color: var(--neon-green); border: 4px solid var(--neon-green); padding: 15px; font-size: 1.8rem; text-align: center; width: 450px; outline: none; margin-top: 30px; }
 #ko { position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 8rem; color: var(--neon-red); display: none; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<h1>STREET CODING FIGHTER</h1>
+<h1>STREET CODING FIGHTER v10.0</h1>
 
 <div class="top-ui">
-    <div>PLAYER (KEN)<div class="hp-box"><div id="pHP" class="hp-bar"></div></div></div>
+    <div>PLAYER<div class="hp-box"><div id="pHP" class="hp-bar"></div></div></div>
     <div id="timer">90</div>
     <div>RIVAL (CHUN-LI)<div class="hp-box"><div id="eHP" class="hp-bar"></div></div></div>
 </div>
@@ -63,70 +37,71 @@ h1 {
 <div id="stage">
     <div id="player" class="character">🧑‍💻</div>
     <div id="enemy" class="character">👾</div>
+    <div id="projectiles"></div>
 </div>
 
-<div class="input-area">
-    <input id="input" placeholder="READY TO FIGHT?" autocomplete="off" autofocus>
-    <div class="instructions">h: HADOUKEN | a: ATTACK | s: SMASH | d: GUARD</div>
-</div>
-
+<input id="input" placeholder="COMMAND: h (Hadouken), a (Atk)" autocomplete="off" autofocus>
 <div id="ko">K.O.</div>
 
 <script>
-// 튜토리얼 4편 기반: 라이벌 캐릭터(P2) 상태 로직 및 미러링
 let pHP = 100, eHP = 100, time = 90, isGameOver = false;
-let pPosX = 0; // 플레이어 위치
+let pPos = { x: 250, y: 0 };
+let ePos = { x: 800, y: 0 };
 
-function updateMirroring() {
-    const player = document.getElementById("player");
-    const enemy = document.getElementById("enemy");
+// 튜토리얼 5편 기반: 실시간 업데이트되는 Hurt Box 정보 (상대 공격을 맞는 범위)
+function getEnemyHurtBox() {
+    return {
+        x: ePos.x + 20,
+        y: 150, // 무대 상의 높이
+        w: 100,
+        h: 200
+    };
+}
+
+function fireHadouken() {
+    if (isGameOver) return;
+    const h = document.createElement("div");
+    h.className = "hadouken";
+    h.innerText = "🌀";
+    h.style.left = (pPos.x + 50) + "px";
+    h.style.bottom = "120px";
+    document.getElementById("projectiles").appendChild(h);
     
-    // 플레이어가 적의 오른쪽에 있으면 적은 오른쪽을 봐야 함 (scaleX flip)
-    if (pPosX > window.innerWidth / 2) {
-        enemy.classList.remove("flipped");
-    } else {
-        enemy.classList.add("flipped");
-    }
+    let hX = pPos.x + 50;
+    const moveInt = setInterval(() => {
+        hX += 12;
+        h.style.left = hX + "px";
+        
+        // 튜토리얼 5편의 충돌 감지 로직 적용
+        const eHurt = getEnemyHurtBox();
+        if (hX > eHurt.x && hX < eHurt.x + eHurt.w) {
+            clearInterval(moveInt);
+            h.remove();
+            damageEnemy(15);
+        }
+
+        if (hX > window.innerWidth) { clearInterval(moveInt); h.remove(); }
+    }, 20);
 }
 
 function damageEnemy(amt) {
-    if (isGameOver) return;
     eHP = Math.max(0, eHP - amt);
     document.getElementById("eHP").style.width = eHP + "%";
-    document.body.style.backgroundColor = "#441111"; // 히트 플래시
-    setTimeout(() => document.body.style.background = "", 100);
-    checkGameOver();
-}
-
-function checkGameOver() {
-    if (pHP <= 0 || eHP <= 0) {
-        isGameOver = true;
-        document.getElementById("ko").style.display = "block";
-        document.getElementById("input").disabled = true;
-    }
+    document.getElementById("enemy").style.filter = "brightness(3)";
+    setTimeout(() => document.getElementById("enemy").style.filter = "none", 150);
+    if (eHP <= 0) { isGameOver = true; document.getElementById("ko").style.display = "block"; }
 }
 
 document.getElementById("input").addEventListener("keydown", e => {
     if (e.key === "Enter" && !isGameOver) {
         const cmd = e.target.value.trim().toLowerCase();
         e.target.value = "";
-        
-        if (cmd === 'h') {
-            document.getElementById("player").innerText = "👐";
-            setTimeout(() => { document.getElementById("player").innerText = "🧑‍💻"; damageEnemy(15); }, 300);
-        } else if (cmd === 'a') {
-            damageEnemy(5);
-        }
+        if (cmd === 'h') fireHadouken();
+        else if (cmd === 'a') damageEnemy(5);
     }
 });
 
-// 타이머
-setInterval(() => {
-    if (time > 0 && !isGameOver) {
-        time--;
-        document.getElementById("timer").innerText = time;
-    }
-}, 1000);
+setInterval(() => { if (!isGameOver) { time--; document.getElementById("timer").innerText = time; } }, 1000);
 </script>
 </body>
 </html>

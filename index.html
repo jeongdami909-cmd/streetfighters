@@ -3,65 +3,68 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Neon Shadows</title>
+    <title>Nexus Strike: Zero-Lag Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
-        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#ec5b13", "accent-blue": "#00f2ff", "bg-dark": "#1a0f0a" } } } }
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary": "#00f2ff", "rival": "#ec5b13", "bg-dark": "#0a0a0c" } } } }
     </script>
     <style>
-        /* 🛠️ 해결: 100dvh로 모바일 잘림 방지 */
-        html, body { height: 100dvh; margin: 0; padding: 0; background: #1a0f0a; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
+        /* 🛠️ 해결: 100dvh로 모바일 최적화 레이아웃 */
+        html, body { height: 100dvh; margin: 0; padding: 0; background: #0a0a0c; overflow: hidden; touch-action: manipulation; font-family: 'Public Sans', sans-serif; }
         canvas { position: absolute; top:0; left:0; width:100vw; height:100vh; z-index:0; pointer-events:none; image-rendering: pixelated; object-fit:contain; }
         #ui-layer { position: relative; z-index: 50; width: 100%; height: 100dvh; pointer-events: auto; }
+        .interactive { pointer-events: auto; }
         .btn:active { background: #00f2ff !important; color: #000 !important; transform: scale(0.9); box-shadow: 0 0 20px #00f2ff; }
+        .rival-btn:active { background: #ec5b13 !important; color: #fff !important; }
     </style>
 </head>
 <body class="bg-bg-dark text-white select-none">
 
     <div id="loading-gate" class="fixed inset-0 z-[200] bg-bg-dark flex flex-col items-center justify-center">
-        <p class="text-primary text-xl font-black italic animate-pulse">ESTABLISHING NEURAL LINK...</p>
+        <p class="text-primary text-xl font-black italic animate-pulse">Establishing Combat Link...</p>
     </div>
 
     <div id="vs-screen" class="hidden interactive fixed inset-0 z-[100] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
-        <div class="flex gap-10 items-center mb-10">
+        <h1 class="text-5xl font-black italic text-primary italic mb-10">NEXUS STRIKE</h1>
+        <div class="flex gap-10 items-center mb-12">
             <div class="text-center">
-                <div class="size-48 border-2 border-accent-blue rounded-xl bg-cover bg-center shadow-[0_0_30px_rgba(0,242,255,0.3)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM');"></div>
-                <h1 class="text-3xl font-black italic mt-4 text-accent-blue uppercase tracking-widest">Ninja</h1>
+                <div class="size-44 border-2 border-primary rounded-xl bg-cover bg-center shadow-[0_0_30px_#00f3ff]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAk4gjewnysuC4jHejZLL-CnVyOTKGLTwatIpA1N6bSfDVt2QxdQsW-JaNJNXSglfgIE511mLmoM9gRzh5DfAjIW0pySv397FE4JuzEqlKkxYBRidpoqD-MCKGcr4LoKOcDOnEQ60PQVUWAHOG4Ck6zzAG9T-MVOP7UHqL-BsNPWOvKF9DmjEzDQv-HDWhpuogdk_EIYSzUBbnjaxZnpFhD-0hRgr3mPI7CHsSEDH1qIie5RpW7cvxeBCRBUXtZgfT_F0c0Rl2KJjV1');"></div>
+                <h2 class="text-2xl font-black italic mt-4 text-primary">ZERO</h2>
             </div>
-            <div class="text-5xl font-black italic text-primary">VS</div>
+            <div class="text-4xl font-black italic text-white italic">VS</div>
             <div class="text-center">
-                <div class="size-48 border-2 border-primary rounded-xl bg-cover bg-center shadow-[0_0_30px_rgba(236,91,19,0.3)]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk');"></div>
-                <h1 class="text-3xl font-black italic mt-4 text-primary uppercase tracking-widest">Ryu</h1>
+                <div class="size-44 border-2 border-rival rounded-xl bg-cover bg-center shadow-[0_0_30px_#ec5b13]" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq');"></div>
+                <h2 class="text-2xl font-black italic mt-4 text-rival">RYU</h2>
             </div>
         </div>
-        <button id="start-btn" class="px-16 py-6 bg-primary text-white font-black text-2xl rounded shadow-[0_0_50px_rgba(236,91,19,0.5)] active:scale-95 transition uppercase italic">System Link Start</button>
+        <button id="start-btn" class="btn px-16 py-6 bg-primary text-black font-black text-xl rounded shadow-[0_0_40px_#00f2ff] uppercase italic">System Link Start</button>
     </div>
 
     <div id="ui-layer" class="hidden">
         <div id="hud" class="absolute top-6 inset-x-8 flex justify-between pointer-events-none">
-            <div class="w-[40%]">
-                <div class="flex justify-between font-black italic text-[10px] text-accent-blue mb-1 uppercase"><span>P1: Ninja</span><span id="p1-hp-txt">100%</span></div>
-                <div class="h-4 bg-black border border-accent-blue/30"><div id="p1-hp" class="h-full bg-accent-blue transition-all" style="width: 100%"></div></div>
+            <div class="w-[40%] flex flex-col gap-1">
+                <div class="flex justify-between font-black italic text-[10px] text-primary mb-1 uppercase"><span>P1: Zero</span><span id="p1-hp-txt">100%</span></div>
+                <div class="h-4 bg-black border border-primary/30"><div id="p1-hp" class="h-full bg-primary transition-all" style="width: 100%"></div></div>
             </div>
             <div class="bg-black/80 border-x-4 border-primary px-6 py-1"><h2 id="timer" class="text-primary text-4xl font-black italic">99</h2></div>
-            <div class="w-[40%] text-right">
-                <div class="flex justify-between flex-row-reverse font-black italic text-[10px] text-primary mb-1 uppercase"><span>CPU: Ryu</span><span id="p2-hp-txt">100%</span></div>
-                <div class="h-4 bg-black border border-primary/30 flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-primary transition-all" style="width: 100%"></div></div>
+            <div class="w-[40%] flex flex-col gap-1 text-right">
+                <div class="flex justify-between flex-row-reverse font-black italic text-[10px] text-rival mb-1 uppercase"><span>CPU: Ryu</span><span id="p2-hp-txt">100%</span></div>
+                <div class="h-4 bg-black border border-rival/30 flex flex-row-reverse"><div id="p2-hp-bar" class="h-full bg-rival transition-all" style="width: 100%"></div></div>
             </div>
         </div>
 
         <div id="controls" class="absolute bottom-12 inset-x-8 flex justify-between items-end">
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-3 gap-3 interactive">
                 <div></div><button id="up" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▲</button><div></div>
                 <button id="left" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">◀</button>
                 <button id="down" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▼</button>
                 <button id="right" class="btn size-16 bg-white/5 border border-white/20 rounded-xl text-white">▶</button>
                 <div></div>
             </div>
-            <div class="flex gap-6">
-                <button id="btn-p" class="btn size-20 rounded-full border-4 border-accent-blue bg-black/60 text-accent-blue font-black italic text-2xl">P</button>
-                <button id="btn-k" class="btn size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black italic text-2xl">K</button>
+            <div class="flex gap-6 interactive">
+                <button id="btn-p" class="btn size-20 rounded-full border-4 border-primary bg-black/60 text-primary font-black italic text-2xl">P</button>
+                <button id="btn-k" class="btn rival-btn size-20 rounded-full border-4 border-accent bg-black/60 text-accent font-black italic text-2xl">K</button>
             </div>
         </div>
     </div>
@@ -73,96 +76,87 @@
         const ctx = canvas.getContext("2d");
         const GROUND_Y = 195;
         const GRAVITY = 0.6;
-        const DRAW_SIZE = 85;
+        const DRAW_SIZE = 85; 
         const heldKeys = new Set();
         let hitstop = 0, active = false;
 
-        // 🛠️ 해결: 사운드 시스템 및 10프레임 설정
-        const sounds = {
-            hit: new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg'),
-            bgm: new Audio('https://actions.google.com/sounds/v1/ambient/dark_scifi_drone.ogg')
-        };
-        sounds.bgm.loop = true;
-
-        const FRAME_COUNTS = { idle: 10, walk: 10, jump: 10, punch: 10, kick: 10, roll: 10, hit: 4 }; //
-        const ANIMS = { idle: 0, walk: 1, jump: 2, punch: 3, kick: 4, roll: 5, hit: 0 };
+        // 🛠️ 캐릭터별 프레임 수 동적 적용 (P1은 6프레임 루프)
+        const P1_FRAMES = { idle: 6, walk: 6, jump: 6, punch: 6, kick: 6, hit: 4 };
+        const ANIMS = { idle: 0, walk: 1, jump: 2, punch: 3, kick: 4, hit: 0 };
 
         const P1_SHEET = new Image();
         const P2_SHEET = new Image();
         const BG_IMG = new Image();
 
-        let loaded = 0;
-        const check = () => { if (++loaded === 3) { document.getElementById("loading-gate").classList.add("hidden"); document.getElementById("vs-screen").classList.remove("hidden"); } };
-        P1_SHEET.onload = P2_SHEET.onload = BG_IMG.onload = check;
+        let loadedAssets = 0;
+        const checkAssets = () => { if (++loadedAssets === 3) { document.getElementById("loading-gate").classList.add("hidden"); document.getElementById("vs-screen").classList.remove("hidden"); } };
+        P1_SHEET.onload = P2_SHEET.onload = BG_IMG.onload = checkAssets;
         
-        P1_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuD_8mhVTPsrVNdoaznLKgKKvgYwxntgmix1TrjDFGV6V2JfjXq1_gp_xpNJQxuF37ODlgoD-2wELp5CsI3I2xKWJo_KtHDFfWWqz42LmZeTvSerokWuLhP0HRdvnrCwx-gsvzQkXMEYFXOG9FlWizjRSEuzaIq1-s1sHu5vO2V1lARYrKrQN9yyNPLbTP4vgbVy6btjiu2DH9WKyzIoK7oPiXo0JD6IdyXicxeeUN8Ifwibans2QTTxgQbPwv0wOUdoxvLPSLszzPM"; // 닌자 시트
-        P2_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuC6iVUbj_xI23hlisPPukyjOcddT15wi0c5spFmhalGUzvji9FpGecbJpi854c4LCBdmKYBwylbSYrK5VomYncIdWvEqoAhAzsQQYRM7cldEnD03hkhC4czYKZSiShSWfZ_5mQb8R4emLrPqfMNcGIQ4bvPOVWzcWSsHzrCS96OW7RyB8cZ4JH3TUDCShu8wUk0WdKqb0X4080_7HYnxeb1v5_5yilBvPXzQtDE3Dyd8NeMEiuDW8ltUeTLLiryB7z_QBefSzZh3qk"; // 라이벌 시트
+        P1_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuA633UoEppwwSVg3E1M7xWbduakTq39rHgMBscyAqtBR4JgqpLqzvigSsHBVb5sKRd04AA1snoxPRbSM0ydSEqeeYGiwi4QRSrEfF-0xJv1d-zRCWv5DVHDuh0o7yMXAPafPBGB42vyUduYwNc4CgJQTkG_T0-DCE5whjTjMAVYIPYsFFqZB2CS0xTEDxG306k0US2DnDUlhQyI5rBHU2-oneLZuyRs6ztFhADdZfEtchoguPCYn4HmLDs3rmeUUbnGul7QR2KM4Nw"; // 닌자 시트
+        P2_SHEET.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBuPdanKJbkdOYaT3-IZH-6c2_1EH8e9i3hf7xpii8jObmiVU_mGrASl1jNhiLSX1YKFwtgvSa5AEUKH0EqTqe45fhjal-Uz17mMxbkD1VVt8MkemIYtQdtNWZaVxfbPUTTzB9QiMyh88dsk0Sw3jAsr1WQSgIfEXF7QSMHWqP16jSxNzB5pvichtq-MACtTWCnH5De3tJxFRLDmm4kvVcKAZ6LaUGwV98UPGhd9LwQ0fLZY0vXpSkINZ56DL4pqlflBiyG4oDNMTUq";  // 라이벌 이미지 (단일)
         BG_IMG.src = "https://lh3.googleusercontent.com/aida-public/AB6AXuBqxvGMkpkIc9bUxOOhYj3MALyCCXoUTlWmjgZa_PoaWkrdHXTgZoFK9z3GFLPnQV0gNavZwMzBQu_Yjg6kBDfNkWBP1KCO3PVzqIrVtg7zkxJS2CPQCrc5sMgkebFVy-XDUGDNckTRUQqas54fGjA24j30B13LJhPQ9T3jHYlyuPjq9OIcT41BNPOkWsSFTaOULhPpaVwVeiEHk74KcyZDbB1NIxdoTNBCsJ7xrz77dqbNhBc_lKC4cOWWHsx5OKD53vApgFQU79A";
 
         class Fighter {
-            constructor(x, id, sheet, isPlayer) {
+            constructor(x, id, sheet, frames, isPlayer) {
                 this.x = x; this.y = GROUND_Y;
                 this.vx = 0; this.vy = 0;
-                this.hp = 100; this.id = id; this.sheet = sheet;
+                this.hp = 100; this.id = id; 
+                this.sheet = sheet; this.frameCounts = frames;
                 this.state = "idle"; this.frame = 0; this.timer = 0;
                 this.facing = isPlayer ? 1 : -1; this.isPlayer = isPlayer;
             }
 
             takeDamage(amt, attacker) {
                 this.hp = Math.max(0, this.hp - amt); this.state = "hit";
-                this.vx = attacker.facing * 8; hitstop = 5;
-                
-                // 🛠️ 해결: 타격음 재생
-                sounds.hit.currentTime = 0;
-                sounds.hit.play().catch(()=>{});
-
+                this.vx = attacker.facing * 8; hitstop = 6;
                 document.getElementById(this.isPlayer ? "p1-hp" : "p2-hp-bar").style.width = this.hp + "%";
-                document.getElementById(this.isPlayer ? "p1-hp-txt" : "p2-hp-txt").innerText = this.hp + "%";
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
             }
 
             update(opponent) {
                 if (this.isPlayer) {
-                    if (!["punch", "kick", "roll", "hit"].includes(this.state)) {
-                        const L = heldKeys.has("Left"), R = heldKeys.has("Right"), D = heldKeys.has("Down");
-                        if (D && (L || R)) { this.state = "roll"; this.vx = (L ? -6 : 6); }
-                        else if (L) { this.vx = -4.5; this.state = "walk"; }
+                    if (!["punch", "kick", "hit"].includes(this.state)) {
+                        const L = heldKeys.has("Left"), R = heldKeys.has("Right");
+                        if (L) { this.vx = -4.5; this.state = "walk"; }
                         else if (R) { this.vx = 4.5; this.state = "walk"; }
                         else { this.vx = 0; this.state = "idle"; }
                         if (heldKeys.has("Up") && this.y >= GROUND_Y) { this.vy = -13; this.state = "jump"; }
                     }
                 } else {
                     const d = Math.abs(this.x - opponent.x);
-                    if (d > 75) { this.vx = this.x < opponent.x ? 1.8 : -1.8; this.state = "walk"; }
+                    if (d > 75) { this.vx = this.x < opponent.x ? 1.5 : -1.5; this.state = "walk"; }
                     else { this.vx = 0; if(Math.random() < 0.04) this.attack(opponent, "punch"); else this.state = "idle"; }
                 }
 
                 this.vy += GRAVITY; this.x += this.vx; this.y += this.vy;
                 if (this.y >= GROUND_Y) { this.y = GROUND_Y; this.vy = 0; if(this.state === "jump") this.state = "idle"; }
                 this.x = Math.max(25, Math.min(359, this.x));
-                if(this.state !== "roll") this.facing = this.x < opponent.x ? 1 : -1;
+                this.facing = this.x < opponent.x ? 1 : -1;
 
-                if (Date.now() - this.timer > 80) { // 🛠️ 닌자 특유의 빠른 프레임 속도
-                    this.frame = (this.frame + 1) % FRAME_COUNTS[this.state];
+                // 🛠️ 해결: 프레임 루프 크래시 방지
+                if (Date.now() - this.timer > 100) {
+                    this.frame = (this.frame + 1) % this.frameCounts[this.state];
                     this.timer = Date.now();
-                    if (["punch", "kick", "roll"].includes(this.state) && this.frame === 0) this.state = "idle";
+                    if (["punch", "kick"].includes(this.state) && this.frame === 0) this.state = "idle";
                 }
             }
 
             attack(target, type) {
-                if (["punch", "kick", "roll"].includes(this.state)) return;
+                if (["punch", "kick"].includes(this.state)) return;
                 this.state = type; this.frame = 0;
+                new Audio('https://actions.google.com/sounds/v1/impacts/crash_metal.ogg').play().catch(()=>{});
                 if (Math.abs(this.x - target.x) < 65) target.takeDamage(10, this);
             }
 
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.scale(this.facing, 1);
                 if (this.sheet.complete) {
-                    const sy = ANIMS[this.state] * (this.sheet.height / 8);
-                    const sx = this.frame * (this.sheet.width / 10);
-                    ctx.drawImage(this.sheet, sx, sy, this.sheet.width/10, this.sheet.height/8, -DRAW_SIZE/2, -DRAW_SIZE, DRAW_SIZE, DRAW_SIZE);
+                    const sy = ANIMS[this.state] * (this.sheet.height / 8); 
+                    const sx = (this.isPlayer ? this.frame : 0) * (this.sheet.width / 6); // 제로는 6프레임 루프
+                    ctx.drawImage(this.sheet, sx, sy, this.sheet.width/6, this.sheet.height/8, -DRAW_SIZE/2, -DRAW_SIZE, DRAW_SIZE, DRAW_SIZE);
                 } else {
-                    ctx.fillStyle = this.isPlayer ? "#00f3ff" : "#ec5b13";
+                    // 폴백 사각형
+                    ctx.fillStyle = this.isPlayer ? "#00f2ff" : "#ec5b13";
                     ctx.fillRect(-15, -60, 30, 60);
                 }
                 ctx.restore();
@@ -184,15 +178,13 @@
             el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
         };
 
-        // 🛠️ 해결: 클릭 시 사운드 잠금 해제
         document.getElementById("start-btn").onclick = () => {
-            sounds.bgm.play().catch(()=>{}); // BGM 시동
             document.getElementById("vs-screen").classList.add("opacity-0");
             setTimeout(() => {
                 document.getElementById("vs-screen").remove();
                 document.getElementById("ui-layer").classList.remove("hidden");
-                p1 = new Fighter(80, "NINJA", P1_SHEET, true); 
-                p2 = new Fighter(300, "RYU", P2_SHEET, false);
+                p1 = new Fighter(80, "ZERO", P1_SHEET, P1_FRAMES, true); 
+                p2 = new Fighter(300, "RYU", P2_SHEET, P1_FRAMES, false); // 라이벌은 아직 P1 프레임 루프
                 bind("left", "Left"); bind("right", "Right"); bind("up", "Up"); bind("down", "Down");
                 document.getElementById("btn-p").onpointerdown = () => p1.attack(p2, "punch");
                 document.getElementById("btn-k").onpointerdown = () => p1.attack(p2, "kick");

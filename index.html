@@ -1,35 +1,193 @@
-// 간단한 게임 엔진 로직
-const codeInput = document.getElementById('code-input');
-const stage = document.getElementById('stage');
-const status = document.getElementById('status');
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스트리트 코딩 파이터 v2.0</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+            margin-top: 30px;
+        }
+        /* 체력바 UI 스타일 */
+        .health-board {
+            display: flex;
+            justify-content: space-around;
+            width: 80%;
+            margin: 0 auto 30px auto;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .hp-container {
+            width: 40%;
+            background-color: #444;
+            border: 3px solid #777;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .hp-bar {
+            height: 25px;
+            background-color: #4CAF50; /* 기본 체력 초록색 */
+            width: 100%;
+            transition: width 0.2s ease-out, background-color 0.2s;
+        }
+        #stage {
+            font-size: 6rem;
+            margin: 30px;
+            height: 120px;
+        }
+        #log {
+            font-size: 1.2rem;
+            color: #ffcc00;
+            height: 30px;
+            margin-bottom: 20px;
+        }
+        #code-input {
+            font-size: 1.8rem;
+            padding: 10px;
+            width: 60%;
+            max-width: 500px;
+            background-color: #2d2d2d;
+            color: #4ec9b0;
+            border: 3px solid #569cd6;
+            border-radius: 8px;
+            text-align: center;
+        }
+        #code-input:focus { outline: none; border-color: #c586c0; }
+        .instructions { margin-top: 20px; color: #aaa; font-size: 1rem; }
+    </style>
+</head>
+<body>
 
-// 기술 목록 (콤보 리스트)
-const skillBook = {
-  "attack()": { name: "기본 펀치", damage: 10, effect: "👊" },
-  "special_move()": { name: "초필살기", damage: 50, effect: "🔥" },
-  "defend()": { name: "방어", damage: 0, effect: "🛡️" }
-};
+    <h1>🔥 스트리트 코딩 파이터 🔥</h1>
 
-// 입력 감지 이벤트
-codeInput.addEventListener('input', (e) => {
-  const currentCode = e.target.value;
+    <div class="health-board">
+        <div style="width: 40%;">
+            <div>🧑‍💻 Player HP</div>
+            <div class="hp-container"><div id="player-hp-bar" class="hp-bar"></div></div>
+        </div>
+        <div style="width: 40%;">
+            <div>👾 Bug HP</div>
+            <div class="hp-container"><div id="enemy-hp-bar" class="hp-bar"></div></div>
+        </div>
+    </div>
 
-  if (skillBook[currentCode]) {
-    // 기술 발동!
-    executeSkill(skillBook[currentCode]);
+    <div id="log">전투를 준비하세요! (명령어 입력 후 Enter)</div>
+    <div id="stage">🧑‍💻 ⚡ 👾</div>
     
-    // 입력창 초기화 (공격 성공 후 다음 입력을 위해)
-    e.target.value = '';
-  }
-});
+    <input type="text" id="code-input" placeholder="여기에 코드 입력" autocomplete="off" autofocus>
+    
+    <div class="instructions">
+        사용 가능한 기술 (대소문자 무시): <br><br>
+        <strong>attack()</strong> : 데미지 15<br>
+        <strong>smash()</strong> : 데미지 30<br>
+        <strong>heal()</strong> : 체력 20 회복
+    </div>
 
-function executeSkill(skill) {
-  status.innerText = `${skill.name} 발동! 데미지: ${skill.damage}`;
-  stage.innerText = skill.effect; // 화면에 이펙트 표시
-  
-  // 1초 뒤 원래대로
-  setTimeout(() => {
-    stage.innerText = "🧍";
-    status.innerText = "코드를 입력하세요...";
-  }, 1000);
-}
+    <script>
+        // 요소 가져오기
+        const input = document.getElementById('code-input');
+        const playerHpBar = document.getElementById('player-hp-bar');
+        const enemyHpBar = document.getElementById('enemy-hp-bar');
+        const stage = document.getElementById('stage');
+        const log = document.getElementById('log');
+
+        // 게임 상태 변수
+        let playerHp = 100;
+        let enemyHp = 100;
+        let isGameOver = false;
+
+        // 기술 목록 (소문자 기준으로 매핑)
+        const skillBook = {
+            "attack()": { type: "attack", damage: 15, effect: "🧑‍💻 👊 💥 👾", msg: "기본 공격 적중!" },
+            "smash()": { type: "attack", damage: 30, effect: "🧑‍💻 🔥🔥🔥 👾", msg: "강력한 스매시!" },
+            "heal()": { type: "heal", amount: 20, effect: "🧑‍💻 ✨💚✨ 👾", msg: "체력 회복!" }
+        };
+
+        // UI 업데이트 함수 (체력바 깎이는 애니메이션 및 색상 변경)
+        function updateUI() {
+            playerHpBar.style.width = playerHp + '%';
+            enemyHpBar.style.width = enemyHp + '%';
+
+            // 체력이 낮아지면 붉은색으로 변경
+            playerHpBar.style.backgroundColor = playerHp <= 30 ? '#f44336' : '#4CAF50';
+            enemyHpBar.style.backgroundColor = enemyHp <= 30 ? '#f44336' : '#4CAF50';
+        }
+
+        // 게임 종료 판정
+        function checkGameOver() {
+            if (playerHp <= 0 || enemyHp <= 0) {
+                isGameOver = true;
+                input.disabled = true; // 입력창 잠금
+                clearInterval(enemyAttackTimer); // 적 공격 중지
+
+                if (playerHp <= 0 && enemyHp <= 0) {
+                    log.innerText = "무승부! 둘 다 쓰러졌습니다.";
+                    stage.innerText = "💀 💦 💀";
+                } else if (enemyHp <= 0) {
+                    log.innerText = "승리! 버그를 완벽히 잡았습니다! 🎉";
+                    stage.innerText = "🧑‍💻 🏆 💀";
+                } else {
+                    log.innerText = "패배... 버그에게 잡아먹혔습니다. 😭";
+                    stage.innerText = "💀 🩸 👾";
+                }
+            }
+        }
+
+        // 적(Enemy)의 자동 공격 로직 (2.5초마다 10 데미지)
+        const enemyAttackTimer = setInterval(() => {
+            if (isGameOver) return;
+            
+            playerHp = Math.max(0, playerHp - 10);
+            log.innerText = "👾 적의 공격! (-10 HP)";
+            stage.innerText = "🧑‍💻 💥 🤛 👾";
+            
+            updateUI();
+            checkGameOver();
+
+            // 0.5초 뒤 무대 원래대로
+            setTimeout(() => {
+                if(!isGameOver) stage.innerText = "🧑‍💻 ⚡ 👾";
+            }, 500);
+        }, 2500);
+
+        // 플레이어 입력 처리 (Enter 키 감지)
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !isGameOver) {
+                // 입력값 정리: 양옆 공백 제거 및 소문자로 변환 (지피티 피드백 반영!)
+                const currentCode = e.target.value.trim().toLowerCase();
+                
+                if (skillBook[currentCode]) {
+                    const skill = skillBook[currentCode];
+                    log.innerText = skill.msg;
+                    stage.innerText = skill.effect;
+
+                    if (skill.type === "attack") {
+                        enemyHp = Math.max(0, enemyHp - skill.damage);
+                    } else if (skill.type === "heal") {
+                        playerHp = Math.min(100, playerHp + skill.amount);
+                    }
+                } else {
+                    // 오타 났을 때 (패널티 느낌)
+                    log.innerText = "❌ Syntax Error! (기술 실패)";
+                    stage.innerText = "🧑‍💻 ❓ 👾";
+                }
+
+                // 처리 후 입력창 비우기 및 UI 갱신
+                e.target.value = '';
+                updateUI();
+                checkGameOver();
+
+                // 0.5초 뒤 무대 원래대로
+                setTimeout(() => {
+                    if(!isGameOver) stage.innerText = "🧑‍💻 ⚡ 👾";
+                }, 500);
+            }
+        });
+
+    </script>
+</body>
+</html>

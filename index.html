@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
-    <title>Nexus Strike: Final Deployment</title>
+    <title>Nexus Strike: Ghost Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@900&display=swap" rel="stylesheet"/>
     <script>
@@ -68,7 +68,7 @@
         const P2_IMG = new Image(); 
         const BG_IMG = new Image();
 
-        // 🚨 지피티의 완벽한 조언 적용: 로컬 파일 경로 사용! 🚨
+        // 🚨 로컬 파일 경로 유지 🚨
         P1_IMG.src = "ninja.png"; 
         P2_IMG.src = "dragon.png"; 
         BG_IMG.src = "background.png"; 
@@ -134,20 +134,19 @@
                 if (this.state === "hit") ctx.filter = "brightness(4)";
 
                 // 파일이 정상적으로 로드되었을 때만 그리기
-                if (this.img.complete && this.img.width > 0) {
+                if (this.img.complete && this.img.width > 0 && !this.img.src.includes('googleusercontent')) {
                     const sw = this.img.width / 10;
                     const sh = this.img.height / 8;
                     const sy = ANIMS[this.state] * sh;
                     const sx = this.frame * sw;
                     ctx.drawImage(this.img, sx, sy, sw, sh, -CHAR_WIDTH/2, -CHAR_HEIGHT, CHAR_WIDTH, CHAR_HEIGHT);
                 } else {
-                    // 파일이 없거나 이름을 잘못 적었을 때 나오는 경고창
-                    ctx.fillStyle = this.isPlayer ? "#00f2ff" : "#ff007f";
-                    ctx.font = "bold 14px sans-serif";
-                    ctx.textAlign = "center";
-                    ctx.fillText(this.isPlayer ? "ninja.png" : "dragon.png", 0, -150);
-                    ctx.fillText("파일 없음!", 0, -130);
-                    ctx.fillRect(-20, -120, 40, 80); 
+                    // 🛠️ 지피티 솔루션 적용: 네모 경고창 삭제
+                    // 파일이 없을 경우 캐릭터의 위치만 알 수 있게 바닥에 은은한 투명 그림자만 그립니다.
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 40, 15, 0, 0, Math.PI * 2);
+                    ctx.fill();
                 }
                 ctx.restore();
             }

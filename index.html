@@ -174,4 +174,34 @@
 
         function gameLoop(t) {
             if (!active) return;
-            ctx.drawImage(SPRITES.bg, 0, 0,
+            ctx.drawImage(SPRITES.bg, 0, 0, 384, 224);
+            p1.update(t, p2); p2.update(t, p1);
+            p1.draw(); p2.draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // 🛠️ 조이스틱 및 버튼 조작 통합
+        document.getElementById("engage-btn").onclick = () => {
+            document.getElementById("vs-screen").classList.add("opacity-0");
+            setTimeout(() => {
+                document.getElementById("vs-screen").remove();
+                document.getElementById("battle-hud").classList.remove("hidden");
+                p1 = new Fighter(80, "ZERO", true);
+                p2 = new Fighter(300, "KAEL", false);
+                active = true;
+                requestAnimationFrame(gameLoop);
+            }, 700);
+        };
+
+        const setupBtn = (id, key) => {
+            const el = document.getElementById(id);
+            el.onpointerdown = (e) => { e.preventDefault(); heldKeys.add(key); };
+            el.onpointerup = (e) => { e.preventDefault(); heldKeys.delete(key); };
+        };
+        setupBtn("left", "Left"); setupBtn("right", "Right"); setupBtn("up", "Up");
+        document.getElementById("btn-p").onpointerdown = () => p1.attack(p2, "punch");
+        document.getElementById("btn-k").onpointerdown = () => p1.attack(p2, "kick");
+        document.getElementById("btn-sp").onpointerdown = () => p1.attack(p2, "special");
+    </script>
+</body>
+</html>

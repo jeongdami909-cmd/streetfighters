@@ -20,7 +20,7 @@
 <body class="bg-bg-dark text-white">
 
     <div id="vs-screen" class="interactive fixed inset-0 z-[110] bg-bg-dark flex flex-col items-center justify-center min-h-[100dvh]">
-        <h1 class="text-5xl font-black italic text-white mb-10 tracking-tighter shadow-accent">NEXUS STRIKE</h1>
+        <h1 class="text-5xl font-black italic text-white mb-10 tracking-tighter">NEXUS STRIKE</h1>
         <button id="start-btn" class="px-14 py-6 bg-accent text-black font-black text-2xl rounded-2xl shadow-[0_0_50px_#00f3ff] uppercase italic">Deploy Combatants</button>
     </div>
 
@@ -56,12 +56,11 @@
         const canvas = document.getElementById("game");
         const ctx = canvas.getContext("2d");
         const GROUND_Y = 260; const GRAVITY = 0.65;
-        const CHAR_SIZE = 128; // 프레임당 해상도
-        const DRAW_SIZE = 180; // 화면에 그릴 크기
+        const CHAR_SIZE = 128; 
+        const DRAW_SIZE = 180; 
         const heldKeys = new Set();
         let hitstop = 0, shake = 0, active = false;
 
-        // 🛠️ 스프라이트 시트 로드 (반드시 아래의 이미지를 lotus_sprites.png, dragon_sprites.png로 저장하세요)
         const P1_IMG = new Image(); const P2_IMG = new Image(); 
         P1_IMG.src = "lotus_sprites.png"; 
         P2_IMG.src = "dragon_sprites.png";
@@ -86,7 +85,6 @@
                 setTimeout(() => { if(this.hp > 0) this.state = "idle"; }, 300);
             }
             update(opponent) {
-                // 🛠️ 가속도 시스템 적용
                 if (this.isPlayer) {
                     if (!["punch", "kick", "hit"].includes(this.state)) {
                         const L = heldKeys.has("Left"), R = heldKeys.has("Right");
@@ -113,7 +111,6 @@
                 this.x = Math.max(40, Math.min(472, this.x));
                 this.facing = this.x < opponent.x ? 1 : -1;
 
-                // 🛠️ 프레임 인덱스 틱 시스템
                 this.tick++;
                 if (this.tick > 6) {
                     this.tick = 0;
@@ -129,16 +126,11 @@
             draw() {
                 ctx.save(); 
                 ctx.translate(this.x, this.y); 
-                
-                // 1P / CPU 마커
                 ctx.font = "bold 14px 'Public Sans'"; ctx.textAlign = "center";
                 ctx.fillStyle = this.isPlayer ? "#00f3ff" : "#ff00ff";
                 ctx.fillText(this.isPlayer ? "1P" : "CPU", 0, -DRAW_SIZE - 20);
-
                 ctx.scale(this.facing, 1);
                 if (this.state === "hit") ctx.filter = "brightness(5)";
-                
-                // 🛠️ 스프라이트 시트 슬라이싱 렌더링
                 if (this.img.complete && this.img.width > 10) {
                     const sx = this.frame * CHAR_SIZE;
                     const sy = ANIMS[this.state] * CHAR_SIZE;
@@ -155,7 +147,6 @@
             if (hitstop > 0) { hitstop--; requestAnimationFrame(loop); return; }
             ctx.save();
             if (shake > 0) { ctx.translate(Math.random()*shake-shake/2, Math.random()*shake-shake/2); shake *= 0.85; }
-            
             ctx.fillStyle = "#0a0a0c"; ctx.fillRect(0, 0, 512, 288);
             p1.update(p2); p2.update(p1);
             p1.draw(); p2.draw();
